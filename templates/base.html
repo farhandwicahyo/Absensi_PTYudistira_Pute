@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sistem Presensi Karyawan{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Flowbite CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet" />
+    
+    <!-- Flowbite JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-gray-50">
+    {% if session.user_id %}
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-gray-200 px-4 py-3">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-4">
+                <a href="{{ url_for('dashboard.index') }}" class="text-xl font-bold text-blue-600">
+                    <i class="fas fa-clock mr-2"></i>Sistem Presensi
+                </a>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <!-- Notifications -->
+                <div class="relative">
+                    <button id="notificationBtn" class="relative p-2 text-gray-600 hover:text-blue-600">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span id="notificationBadge" class="hidden absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                    </button>
+                    <div id="notificationDropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                        <div class="p-4 border-b">
+                            <h3 class="font-semibold">Notifikasi</h3>
+                        </div>
+                        <div id="notificationList" class="max-h-96 overflow-y-auto">
+                            <!-- Notifications will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- User Menu -->
+                <div class="relative">
+                    <button id="userMenuBtn" class="flex items-center space-x-2 text-gray-700 hover:text-blue-600">
+                        <i class="fas fa-user-circle text-xl"></i>
+                        <div class="text-left">
+                            <div class="font-semibold">{{ session.username }}</div>
+                            <div class="text-xs">
+                                {% if session.role == 'admin' %}
+                                    <span class="px-2 py-0.5 bg-red-100 text-red-700 rounded-full">Admin</span>
+                                {% elif session.role == 'hrd' %}
+                                    <span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">HRD</span>
+                                {% elif session.role == 'atasan' %}
+                                    <span class="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full">Atasan</span>
+                                {% else %}
+                                    <span class="px-2 py-0.5 bg-green-100 text-green-700 rounded-full">Karyawan</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <i class="fas fa-chevron-down text-sm"></i>
+                    </button>
+                    <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                        <a href="{{ url_for('dashboard.index') }}" class="block px-4 py-2 hover:bg-gray-100">
+                            <i class="fas fa-home mr-2"></i>Dashboard
+                        </a>
+                        <a href="{{ url_for('auth.logout') }}" class="block px-4 py-2 hover:bg-gray-100 text-red-600">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Sidebar -->
+    <div class="flex">
+        <aside class="w-64 bg-white border-r border-gray-200 min-h-screen">
+            <nav class="p-4">
+                <ul class="space-y-2">
+                    <li>
+                        <a href="{{ url_for('dashboard.index') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg">
+                            <i class="fas fa-home mr-3"></i>Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('attendance.index') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg">
+                            <i class="fas fa-calendar-check mr-3"></i>Presensi
+                        </a>
+                    </li>
+                    {% if session.role in ['admin', 'hrd'] %}
+                    <li>
+                        <a href="{{ url_for('employee.index') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg">
+                            <i class="fas fa-users mr-3"></i>Data Karyawan
+                        </a>
+                    </li>
+                    {% endif %}
+                    <li>
+                        <a href="{{ url_for('leave.index') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg">
+                            <i class="fas fa-calendar-times mr-3"></i>Izin/Cuti/Sakit
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('overtime.index') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg">
+                            <i class="fas fa-clock mr-3"></i>Lembur
+                        </a>
+                    </li>
+                    {% if session.role == 'admin' %}
+                    <li>
+                        <a href="{{ url_for('audit.index') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg">
+                            <i class="fas fa-history mr-3"></i>Audit Log
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="flex-1 p-6">
+    {% endif %}
+    
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div id="flashMessages" class="mb-4">
+                {% for category, message in messages %}
+                    <div class="p-4 mb-2 rounded-lg {% if category == 'error' %}bg-red-100 text-red-700{% elif category == 'success' %}bg-green-100 text-green-700{% elif category == 'warning' %}bg-yellow-100 text-yellow-700{% else %}bg-blue-100 text-blue-700{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
+    {% block content %}{% endblock %}
+    
+    {% if session.user_id %}
+        </main>
+    </div>
+    {% endif %}
+    
+    <script>
+        // Notification dropdown
+        document.getElementById('notificationBtn')?.addEventListener('click', function() {
+            const dropdown = document.getElementById('notificationDropdown');
+            dropdown.classList.toggle('hidden');
+            loadNotifications();
+        });
+        
+        // User menu dropdown
+        document.getElementById('userMenuBtn')?.addEventListener('click', function() {
+            document.getElementById('userMenu').classList.toggle('hidden');
+        });
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('#notificationBtn') && !event.target.closest('#notificationDropdown')) {
+                document.getElementById('notificationDropdown')?.classList.add('hidden');
+            }
+            if (!event.target.closest('#userMenuBtn') && !event.target.closest('#userMenu')) {
+                document.getElementById('userMenu')?.classList.add('hidden');
+            }
+        });
+        
+        // Load notifications
+        function loadNotifications() {
+            fetch('{{ url_for("notification.unread") }}')
+                .then(response => response.json())
+                .then(data => {
+                    const list = document.getElementById('notificationList');
+                    const badge = document.getElementById('notificationBadge');
+                    
+                    if (data.length > 0) {
+                        badge.textContent = data.length;
+                        badge.classList.remove('hidden');
+                        list.innerHTML = data.map(n => `
+                            <div class="p-4 border-b hover:bg-gray-50 cursor-pointer" onclick="markRead(${n.id})">
+                                <h4 class="font-semibold">${n.title}</h4>
+                                <p class="text-sm text-gray-600">${n.message}</p>
+                                <span class="text-xs text-gray-400">${new Date(n.created_at).toLocaleString('id-ID')}</span>
+                            </div>
+                        `).join('');
+                    } else {
+                        badge.classList.add('hidden');
+                        list.innerHTML = '<div class="p-4 text-center text-gray-500">Tidak ada notifikasi</div>';
+                    }
+                });
+        }
+        
+        function markRead(id) {
+            fetch(`/notification/${id}/read`, { method: 'POST' })
+                .then(() => loadNotifications());
+        }
+        
+        // Auto-hide flash messages
+        setTimeout(() => {
+            document.getElementById('flashMessages')?.remove();
+        }, 5000);
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

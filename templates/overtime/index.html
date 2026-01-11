@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Lembur - Sistem Presensi Karyawan{% endblock %}
+
+{% block content %}
+<div class="mb-6 flex justify-between items-center">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-800">Pengajuan Lembur</h1>
+        <p class="text-gray-600 mt-2">Kelola pengajuan lembur</p>
+    </div>
+    {% if role == 'karyawan' %}
+    <a href="{{ url_for('overtime.create') }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+        <i class="fas fa-plus mr-2"></i>Ajukan Lembur
+    </a>
+    {% endif %}
+</div>
+
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left font-semibold text-gray-700">Tanggal</th>
+                    <th class="px-6 py-3 text-left font-semibold text-gray-700">Karyawan</th>
+                    <th class="px-6 py-3 text-left font-semibold text-gray-700">Jam</th>
+                    <th class="px-6 py-3 text-left font-semibold text-gray-700">Total Jam</th>
+                    <th class="px-6 py-3 text-left font-semibold text-gray-700">Alasan</th>
+                    <th class="px-6 py-3 text-left font-semibold text-gray-700">Status</th>
+                    <th class="px-6 py-3 text-left font-semibold text-gray-700">Aksi</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for overtime in overtimes %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4">{{ overtime.overtime_date.strftime('%d/%m/%Y') }}</td>
+                    <td class="px-6 py-4">{{ overtime.employee.full_name }}</td>
+                    <td class="px-6 py-4">
+                        {{ overtime.start_time.strftime('%H:%M') }} - {{ overtime.end_time.strftime('%H:%M') }}
+                    </td>
+                    <td class="px-6 py-4 font-semibold">{{ overtime.total_hours }} jam</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">{{ overtime.reason[:50] }}...</td>
+                    <td class="px-6 py-4">
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold
+                            {% if overtime.status == 'disetujui' %}bg-green-100 text-green-800
+                            {% elif overtime.status == 'ditolak' %}bg-red-100 text-red-800
+                            {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                            {{ overtime.status|upper }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        {% if role in ['atasan', 'admin', 'hrd'] and overtime.status == 'menunggu' %}
+                        <div class="flex space-x-2">
+                            <form method="POST" action="{{ url_for('overtime.approve', overtime_id=overtime.id) }}" class="inline">
+                                <button type="submit" class="text-green-600 hover:text-green-800"
+                                        onclick="return confirm('Setujui pengajuan ini?')">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </form>
+                            <button onclick="showRejectModal({{ overtime.id }})" class="text-red-600 hover:text-red-800">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+                        Tidak ada pengajuan lembur
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Reject Modal -->
+<div id="rejectModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 max-w-md w-full">
+        <h3 class="text-xl font-bold mb-4">Tolak Pengajuan</h3>
+        <form id="rejectForm" method="POST">
+            <div class="mb-4">
+                <label class="block text-gray-700 font-semibold mb-2">Alasan Penolakan</label>
+                <textarea name="rejection_reason" rows="3" required
+                          class="w-full px-4 py-2 border border-gray-300 rounded-lg"></textarea>
+            </div>
+            <div class="flex justify-end space-x-3">
+                <button type="button" onclick="closeRejectModal()" class="px-4 py-2 border border-gray-300 rounded-lg">
+                    Batal
+                </button>
+                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                    Tolak
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function showRejectModal(overtimeId) {
+    document.getElementById('rejectForm').action = `/overtime/${overtimeId}/reject`;
+    document.getElementById('rejectModal').classList.remove('hidden');
+}
+
+function closeRejectModal() {
+    document.getElementById('rejectModal').classList.add('hidden');
+}
+</script>
+{% endblock %}

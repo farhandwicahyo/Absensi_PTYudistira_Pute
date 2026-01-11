@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% block title %}Presensi - Sistem Presensi Karyawan{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">Presensi</h1>
+    <p class="text-gray-600 mt-2">
+        {% if role == 'karyawan' %}
+            Lakukan presensi masuk dan pulang
+        {% else %}
+            Monitor presensi karyawan
+        {% endif %}
+    </p>
+</div>
+
+{% if role == 'karyawan' %}
+
+<!-- Today's Attendance Card -->
+<div class="bg-white rounded-lg shadow p-6 mb-6">
+    <h2 class="text-xl font-bold text-gray-800 mb-4">Presensi Hari Ini</h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Check In -->
+        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+            <i class="fas fa-sign-in-alt text-4xl text-blue-600 mb-4"></i>
+            <h3 class="text-lg font-semibold mb-2">Check In</h3>
+            {% if today_attendance and today_attendance.check_in_time %}
+                <p class="text-gray-600">Waktu: {{ today_attendance.check_in_time.strftime('%H:%M:%S') }}</p>
+                <p class="text-sm text-gray-500 mt-2">Status: 
+                    <span class="{% if today_attendance.status == 'hadir' %}text-green-600{% else %}text-red-600{% endif %}">
+                        {{ today_attendance.status|upper }}
+                    </span>
+                </p>
+                <button disabled class="mt-4 px-6 py-2 bg-gray-300 text-gray-600 rounded-lg cursor-not-allowed">
+                    Sudah Check In
+                </button>
+            {% else %}
+                <button id="checkInBtn" class="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                    Check In
+                </button>
+            {% endif %}
+        </div>
+        
+        <!-- Check Out -->
+        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+            <i class="fas fa-sign-out-alt text-4xl text-green-600 mb-4"></i>
+            <h3 class="text-lg font-semibold mb-2">Check Out</h3>
+            {% if today_attendance and today_attendance.check_out_time %}
+                <p class="text-gray-600">Waktu: {{ today_attendance.check_out_time.strftime('%H:%M:%S') }}</p>
+                <button disabled class="mt-4 px-6 py-2 bg-gray-300 text-gray-600 rounded-lg cursor-not-allowed">
+                    Sudah Check Out
+                </button>
+            {% elif today_attendance and today_attendance.check_in_time %}
+                <button id="checkOutBtn" class="mt-4 px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                    Check Out
+                </button>
+            {% else %}
+                <p class="text-gray-500 mt-4">Silakan check in terlebih dahulu</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% else %}
+<!-- Info untuk Admin/HRD/Atasan -->
+<div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+    <div class="flex">
+        <div class="flex-shrink-0">
+            <i class="fas fa-info-circle text-blue-500 text-xl"></i>
+        </div>
+        <div class="ml-3">
+            <p class="text-sm text-blue-700">
+                <strong>Info:</strong> Sebagai {{ role|upper }}, Anda dapat melihat riwayat presensi di halaman 
+                <a href="{{ url_for('attendance.history') }}" class="underline font-semibold">Riwayat Presensi</a>.
+                {% if role in ['admin', 'hrd'] %}
+                Untuk mengelola data karyawan, silakan kunjungi halaman 
+                <a href="{{ url_for('employee.index') }}" class="underline font-semibold">Data Karyawan</a>.
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Attendance History -->
+<div class="bg-white rounded-lg shadow p-6">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-800">
+            {% if role == 'karyawan' %}
+                Riwayat Presensi Saya
+            {% else %}
+                Riwayat Presensi
+            {% endif %}
+        </h2>
+        <a href="{{ url_for('attendance.history') }}" class="text-blue-600 hover:text-blue-800">
+            Lihat Semua <i class="fas fa-arrow-right ml-1"></i>
+        </a>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-4 py-3 font-semibold text-gray-700">Tanggal</th>
+                    {% if role != 'karyawan' %}
+                    <th class="px-4 py-3 font-semibold text-gray-700">Karyawan</th>
+                    {% endif %}
+                    <th class="px-4 py-3 font-semibold text-gray-700">Check In</th>
+                    <th class="px-4 py-3 font-semibold text-gray-700">Check Out</th>
+                    <th class="px-4 py-3 font-semibold text-gray-700">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for attendance in attendances[:10] %}
+                <tr class="border-b">
+                    <td class="px-4 py-3">{{ attendance.attendance_date.strftime('%d/%m/%Y') }}</td>
+                    {% if role != 'karyawan' %}
+                    <td class="px-4 py-3 font-semibold">{{ attendance.employee.full_name if attendance.employee else '-' }}</td>
+                    {% endif %}
+                    <td class="px-4 py-3">
+                        {% if attendance.check_in_time %}
+                            {{ attendance.check_in_time.strftime('%H:%M:%S') }}
+                        {% else %}
+                            <span class="text-gray-400">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-3">
+                        {% if attendance.check_out_time %}
+                            {{ attendance.check_out_time.strftime('%H:%M:%S') }}
+                        {% else %}
+                            <span class="text-gray-400">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="px-2 py-1 rounded text-xs font-semibold
+                            {% if attendance.status == 'hadir' %}bg-green-100 text-green-800
+                            {% elif attendance.status == 'terlambat' %}bg-yellow-100 text-yellow-800
+                            {% elif attendance.status == 'pulang_cepat' %}bg-orange-100 text-orange-800
+                            {% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ attendance.status|upper }}
+                        </span>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="{% if role != 'karyawan' %}5{% else %}4{% endif %}" class="px-4 py-8 text-center text-gray-500">
+                        Tidak ada data presensi
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Loading Modal -->
+<div id="loadingModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 text-center">
+        <i class="fas fa-spinner fa-spin text-4xl text-blue-600 mb-4"></i>
+        <p class="text-gray-700">Memproses presensi...</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function getLocation() {
+        return new Promise((resolve, reject) => {
+            if (!navigator.geolocation) {
+                reject('Geolocation tidak didukung oleh browser Anda');
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                position => resolve({
+                    latitude: position.coords.latitude,
+                    longitude: position.coords.longitude
+                }),
+                error => reject('Tidak dapat mendapatkan lokasi: ' + error.message)
+            );
+        });
+    }
+    
+    async function checkIn() {
+        const modal = document.getElementById('loadingModal');
+        modal.classList.remove('hidden');
+        
+        try {
+            const location = await getLocation();
+            
+            const response = await fetch('{{ url_for("attendance.check_in") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(location)
+            });
+            
+            const data = await response.json();
+            modal.classList.add('hidden');
+            
+            if (data.success) {
+                alert('Check-in berhasil!');
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        } catch (error) {
+            modal.classList.add('hidden');
+            alert('Error: ' + error);
+        }
+    }
+    
+    async function checkOut() {
+        const modal = document.getElementById('loadingModal');
+        modal.classList.remove('hidden');
+        
+        try {
+            const location = await getLocation();
+            
+            const response = await fetch('{{ url_for("attendance.check_out") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(location)
+            });
+            
+            const data = await response.json();
+            modal.classList.add('hidden');
+            
+            if (data.success) {
+                alert('Check-out berhasil!');
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
+        } catch (error) {
+            modal.classList.add('hidden');
+            alert('Error: ' + error);
+        }
+    }
+    
+    document.getElementById('checkInBtn')?.addEventListener('click', checkIn);
+    document.getElementById('checkOutBtn')?.addEventListener('click', checkOut);
+</script>
+{% endblock %}

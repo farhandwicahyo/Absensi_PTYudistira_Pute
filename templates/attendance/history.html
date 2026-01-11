@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Riwayat Presensi - Sistem Presensi Karyawan{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-3xl font-bold text-gray-800">Riwayat Presensi</h1>
+    <p class="text-gray-600 mt-2">
+        {% if role == 'karyawan' %}
+            Lihat riwayat presensi Anda
+        {% elif role == 'atasan' %}
+            Riwayat presensi bawahan Anda
+        {% else %}
+            Riwayat presensi semua karyawan
+        {% endif %}
+    </p>
+</div>
+
+<!-- Filter -->
+<div class="bg-white rounded-lg shadow p-6 mb-6">
+    <form method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+            <label class="block text-gray-700 font-semibold mb-2">Tanggal Mulai</label>
+            <input type="date" name="start_date" value="{{ request.args.get('start_date', '') }}"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+        </div>
+        <div>
+            <label class="block text-gray-700 font-semibold mb-2">Tanggal Akhir</label>
+            <input type="date" name="end_date" value="{{ request.args.get('end_date', '') }}"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+        </div>
+        <div class="flex items-end">
+            <button type="submit" class="w-full px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                <i class="fas fa-search mr-2"></i>Filter
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Attendance Table -->
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left font-semibold text-gray-700">Tanggal</th>
+                    {% if role != 'karyawan' %}
+                    <th class="px-6 py-3 text-left font-semibold text-gray-700">Karyawan</th>
+                    {% endif %}
+                    <th class="px-6 py-3 text-left font-semibold text-gray-700">Check In</th>
+                    <th class="px-6 py-3 text-left font-semibold text-gray-700">Check Out</th>
+                    <th class="px-6 py-3 text-left font-semibold text-gray-700">Status</th>
+                    <th class="px-6 py-3 text-left font-semibold text-gray-700">Keterangan</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+                {% for attendance in attendances %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4">{{ attendance.attendance_date.strftime('%d/%m/%Y') }}</td>
+                    {% if role != 'karyawan' %}
+                    <td class="px-6 py-4 font-semibold">{{ attendance.employee.full_name if attendance.employee else '-' }}</td>
+                    {% endif %}
+                    <td class="px-6 py-4">
+                        {% if attendance.check_in_time %}
+                            {{ attendance.check_in_time.strftime('%H:%M:%S') }}
+                        {% else %}
+                            <span class="text-gray-400">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4">
+                        {% if attendance.check_out_time %}
+                            {{ attendance.check_out_time.strftime('%H:%M:%S') }}
+                        {% else %}
+                            <span class="text-gray-400">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold
+                            {% if attendance.status == 'hadir' %}bg-green-100 text-green-800
+                            {% elif attendance.status == 'terlambat' %}bg-yellow-100 text-yellow-800
+                            {% elif attendance.status == 'pulang_cepat' %}bg-orange-100 text-orange-800
+                            {% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ attendance.status|upper|replace('_', ' ') }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-600">
+                        {{ attendance.notes or '-' }}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="{% if role != 'karyawan' %}6{% else %}5{% endif %}" class="px-6 py-8 text-center text-gray-500">
+                        Tidak ada data presensi
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
