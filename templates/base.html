@@ -8,40 +8,241 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Flowbite CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.css" rel="stylesheet" />
-    
-    <!-- Flowbite JS -->
-    <script src="https://cdn.jsdelivr.net/npm/flowbite@2.5.2/dist/flowbite.min.js"></script>
-    
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Custom Styles (Modern Design) -->
+    <style>
+        :root {
+            --primary: 221 83% 53%;
+            --primary-foreground: 210 40% 98%;
+            --secondary: 210 40% 96%;
+            --muted: 210 40% 96%;
+            --accent: 210 40% 96%;
+            --destructive: 0 84% 60%;
+            --border: 214 32% 91%;
+            --background: 0 0% 100%;
+            --foreground: 222 84% 5%;
+        }
+        
+        * {
+            transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 200ms;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+        
+        /* Modern Navbar */
+        .navbar-modern {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Navbar Container */
+        .navbar-container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        
+        /* Navbar padding untuk alignment dengan main content */
+        /* Di desktop, navbar harus sejajar dengan konten yang ada di dalam main content */
+        /* Main content memiliki padding lg:px-8 (2rem), dan sidebar width adalah w-72 (18rem) */
+        @media (min-width: 1024px) {
+            .navbar-container {
+                padding-left: calc(18rem + 2rem); /* Sidebar width (w-72 = 18rem) + padding main content (lg:px-8 = 2rem) */
+            }
+        }
+        
+        @media (min-width: 1280px) {
+            .navbar-container {
+                max-width: calc(1280px + 18rem + 2rem); /* Max width + sidebar + padding */
+                padding-left: calc(18rem + 2rem);
+            }
+        }
+        
+        /* Modern Sidebar */
+        .sidebar-modern {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            border-right: 1px solid rgba(148, 163, 184, 0.15);
+            box-shadow: 2px 0 20px rgba(0, 0, 0, 0.03);
+        }
+        
+        /* Sidebar width tetap konsisten */
+        @media (min-width: 1024px) {
+            .sidebar-modern {
+                width: 18rem; /* 72 * 0.25rem = 18rem = 288px */
+                flex-shrink: 0;
+            }
+        }
+        
+        .sidebar-item {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .sidebar-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background: linear-gradient(180deg, hsl(var(--primary)), hsl(var(--primary) / 0.7));
+            transform: scaleY(0);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .sidebar-item:hover::before,
+        .sidebar-item.active::before {
+            transform: scaleY(1);
+        }
+        
+        .sidebar-item:hover {
+            background: linear-gradient(90deg, hsl(var(--primary) / 0.08) 0%, hsl(var(--primary) / 0.04) 100%);
+        }
+        
+        /* Sidebar Animation */
+        .sidebar {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        @media (max-width: 1024px) {
+            .sidebar {
+                position: fixed;
+                left: 0;
+                top: 64px; /* Start below navbar */
+                height: calc(100vh - 64px);
+                width: 72%;
+                max-width: 320px;
+                z-index: 50;
+                transform: translateX(-100%);
+                box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            /* Sidebar header tidak perlu padding top karena sidebar sudah start dari bawah navbar */
+            .sidebar-header-mobile {
+                padding-top: 1rem; /* Normal padding saja */
+            }
+        }
+        
+        /* Mobile Overlay */
+        .mobile-overlay {
+            display: none;
+        }
+        
+        @media (max-width: 1024px) {
+            .mobile-overlay.active {
+                display: block;
+                position: fixed;
+                inset: 0;
+                background: rgba(15, 23, 42, 0.6);
+                backdrop-filter: blur(8px);
+                z-index: 40;
+                animation: fadeIn 0.3s ease;
+            }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+        
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.8));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Notification Badge Pulse */
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(0.8);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.2);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(0.8);
+                opacity: 1;
+            }
+        }
+        
+        .notification-pulse {
+            animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        /* Responsive Dropdown */
+        @media (max-width: 640px) {
+            .dropdown-menu {
+                right: 0 !important;
+                left: auto !important;
+                width: calc(100vw - 2rem);
+                max-width: 20rem;
+            }
+        }
+    </style>
+    
     {% block extra_css %}{% endblock %}
 </head>
-<body class="bg-gray-50">
+<body class="bg-slate-50 antialiased">
     {% if session.user_id %}
-    <!-- Navigation -->
-    <nav class="bg-white border-b border-gray-200 px-4 py-3">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-            <div class="flex items-center space-x-4">
-                <a href="{{ url_for('dashboard.index') }}" class="text-xl font-bold text-blue-600">
-                    <i class="fas fa-clock mr-2"></i>Sistem Presensi
+    <!-- Mobile Overlay -->
+    <div id="mobileOverlay" class="mobile-overlay" onclick="closeMobileMenu()"></div>
+    
+    <!-- Modern Navigation Bar - Always on top -->
+    <nav class="navbar-modern sticky top-0 z-[100] w-full">
+        <div class="navbar-container flex h-16 items-center px-4 sm:px-6 lg:px-0 lg:pl-[calc(18rem+2rem)] lg:pr-8">
+            <!-- Hamburger Menu Button (Mobile) - Inside Navbar -->
+            <button id="mobileMenuBtn" class="lg:hidden mr-3 inline-flex items-center justify-center rounded-xl w-11 h-11 bg-gradient-to-br from-blue-600 via-blue-500 to-blue-600 shadow-lg hover:shadow-xl hover:scale-110 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                <i class="fas fa-bars text-white text-base"></i>
+            </button>
+            
+            <!-- Logo Section - Hidden on mobile, visible on desktop -->
+            <div class="hidden lg:flex items-center mr-8">
+                <a href="{{ url_for('dashboard.index') }}" class="flex items-center space-x-3 group">
+                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 via-blue-500 to-blue-600 shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-300">
+                        <i class="fas fa-clock text-xl text-white"></i>
+                    </div>
+                    <span class="text-xl font-bold gradient-text">Sistem Presensi</span>
                 </a>
             </div>
             
-            <div class="flex items-center space-x-4">
+            <!-- Right Section -->
+            <div class="flex flex-1 items-center justify-end space-x-2 sm:space-x-3">
                 <!-- Notifications -->
                 <div class="relative">
-                    <button id="notificationBtn" class="relative p-2 text-gray-600 hover:text-blue-600">
-                        <i class="fas fa-bell text-xl"></i>
-                        <span id="notificationBadge" class="hidden absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">0</span>
+                    <button id="notificationBtn" class="relative inline-flex h-11 w-11 items-center justify-center rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 text-slate-700 transition-all hover:bg-blue-50 hover:text-blue-600 hover:scale-110 hover:shadow-lg active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        <i class="fas fa-bell text-lg"></i>
+                        <span id="notificationBadge" class="hidden absolute -top-1 -right-1 h-6 w-6 rounded-full bg-gradient-to-br from-red-500 to-red-600 text-[11px] text-white flex items-center justify-center shadow-lg notification-pulse border-2 border-white font-semibold">0</span>
                     </button>
-                    <div id="notificationDropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-                        <div class="p-4 border-b">
-                            <h3 class="font-semibold">Notifikasi</h3>
+                    <!-- Responsive Notification Dropdown -->
+                    <div id="notificationDropdown" class="hidden absolute right-0 mt-3 w-[calc(100vw-2rem)] sm:w-80 md:w-96 max-w-md rounded-2xl border border-slate-200 bg-white/95 backdrop-blur-xl shadow-2xl z-[110] overflow-hidden dropdown-menu">
+                        <div class="px-4 py-3 border-b border-slate-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+                            <div class="flex items-center justify-between">
+                                <h3 class="text-sm font-bold text-slate-800">Notifikasi</h3>
+                                <button onclick="document.getElementById('notificationDropdown').classList.add('hidden')" class="lg:hidden text-slate-500 hover:text-slate-700">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
                         </div>
-                        <div id="notificationList" class="max-h-96 overflow-y-auto">
+                        <div id="notificationList" class="max-h-[60vh] overflow-y-auto">
                             <!-- Notifications will be loaded here -->
                         </div>
                     </div>
@@ -49,30 +250,41 @@
                 
                 <!-- User Menu -->
                 <div class="relative">
-                    <button id="userMenuBtn" class="flex items-center space-x-2 text-gray-700 hover:text-blue-600">
-                        <i class="fas fa-user-circle text-xl"></i>
-                        <div class="text-left">
-                            <div class="font-semibold">{{ session.username }}</div>
+                    <button id="userMenuBtn" class="flex items-center space-x-2 rounded-xl bg-white/80 backdrop-blur-sm border border-slate-200 px-2 sm:px-3 py-2 text-sm font-medium transition-all hover:bg-blue-50 hover:border-blue-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 shadow-sm">
+                        <div class="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 shadow-md">
+                            <i class="fas fa-user text-white text-sm"></i>
+                        </div>
+                        <div class="hidden sm:block text-left">
+                            <div class="text-sm font-semibold text-slate-800">{{ session.username }}</div>
                             <div class="text-xs">
                                 {% if session.role == 'admin' %}
-                                    <span class="px-2 py-0.5 bg-red-100 text-red-700 rounded-full">Admin</span>
+                                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold bg-gradient-to-r from-red-500 to-red-600 text-white shadow-sm">Admin</span>
                                 {% elif session.role == 'hrd' %}
-                                    <span class="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">HRD</span>
+                                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-sm">HRD</span>
                                 {% elif session.role == 'atasan' %}
-                                    <span class="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full">Atasan</span>
+                                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-sm">Atasan</span>
                                 {% else %}
-                                    <span class="px-2 py-0.5 bg-green-100 text-green-700 rounded-full">Karyawan</span>
+                                    <span class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-bold bg-gradient-to-r from-green-500 to-green-600 text-white shadow-sm">Karyawan</span>
                                 {% endif %}
                             </div>
                         </div>
-                        <i class="fas fa-chevron-down text-sm"></i>
+                        <i class="fas fa-chevron-down text-xs hidden sm:block text-slate-500"></i>
                     </button>
-                    <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-                        <a href="{{ url_for('dashboard.index') }}" class="block px-4 py-2 hover:bg-gray-100">
-                            <i class="fas fa-home mr-2"></i>Dashboard
+                    <!-- Responsive User Menu Dropdown -->
+                    <div id="userMenu" class="hidden absolute right-0 mt-3 w-[calc(100vw-2rem)] sm:w-52 max-w-xs rounded-2xl border border-slate-200 bg-white/95 backdrop-blur-xl shadow-2xl z-[110] overflow-hidden dropdown-menu">
+                        <div class="px-4 py-3 border-b border-slate-100 bg-gradient-to-r from-blue-50 to-indigo-50 lg:hidden">
+                            <div class="flex items-center justify-between">
+                                <span class="text-sm font-bold text-slate-800">Menu Akun</span>
+                                <button onclick="document.getElementById('userMenu').classList.add('hidden')" class="text-slate-500 hover:text-slate-700">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('dashboard.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-slate-700 transition-all hover:bg-blue-50 hover:text-blue-600 border-b border-slate-100">
+                            <i class="fas fa-home w-5 text-blue-500"></i>Dashboard
                         </a>
-                        <a href="{{ url_for('auth.logout') }}" class="block px-4 py-2 hover:bg-gray-100 text-red-600">
-                            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+                        <a href="{{ url_for('auth.logout') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-600 transition-all hover:bg-red-50">
+                            <i class="fas fa-sign-out-alt w-5"></i>Logout
                         </a>
                     </div>
                 </div>
@@ -80,60 +292,90 @@
         </div>
     </nav>
     
-    <!-- Sidebar -->
-    <div class="flex">
-        <aside class="w-64 bg-white border-r border-gray-200 min-h-screen">
-            <nav class="p-4">
-                <ul class="space-y-2">
-                    <li>
-                        <a href="{{ url_for('dashboard.index') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg">
-                            <i class="fas fa-home mr-3"></i>Dashboard
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ url_for('attendance.index') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg">
-                            <i class="fas fa-calendar-check mr-3"></i>Presensi
-                        </a>
-                    </li>
+    <!-- Sidebar & Main Content -->
+    <div class="flex min-h-[calc(100vh-4rem)]">
+        <!-- Modern Sidebar - Mobile: Slide from left, Desktop: Static -->
+        <aside id="sidebar" class="sidebar sidebar-modern fixed lg:static lg:inset-y-0 left-0 z-50 w-72 lg:w-72 lg:min-h-[calc(100vh-4rem)] flex-shrink-0">
+            <div class="flex h-full flex-col bg-white lg:bg-gradient-to-b lg:from-white lg:to-slate-50/100">
+                <!-- Sidebar Header (Mobile Only) -->
+                <div class="lg:hidden sidebar-header-mobile flex items-center justify-between p-4 border-b border-slate-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+                    <div class="flex items-center space-x-3">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-blue-500 shadow-md">
+                            <i class="fas fa-clock text-white"></i>
+                        </div>
+                        <span class="text-base font-bold text-slate-800">Sistem Presensi</span>
+                    </div>
+                    <button onclick="closeMobileMenu()" class="inline-flex items-center justify-center rounded-xl w-9 h-9 bg-white border border-slate-200 text-slate-600 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all active:scale-95">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                
+                <!-- Navigation -->
+                <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+                    <a href="{{ url_for('dashboard.index') }}" class="sidebar-item flex items-center gap-4 rounded-xl px-4 py-3.5 text-sm font-semibold text-slate-700 transition-all group">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-500/5 border border-blue-200/50 group-hover:from-blue-500/20 group-hover:to-blue-500/10 group-hover:border-blue-300 transition-all">
+                            <i class="fas fa-home text-blue-600 text-lg"></i>
+                        </div>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="{{ url_for('attendance.index') }}" class="sidebar-item flex items-center gap-4 rounded-xl px-4 py-3.5 text-sm font-semibold text-slate-700 transition-all group">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-500/5 border border-blue-200/50 group-hover:from-blue-500/20 group-hover:to-blue-500/10 group-hover:border-blue-300 transition-all">
+                            <i class="fas fa-calendar-check text-blue-600 text-lg"></i>
+                        </div>
+                        <span>Presensi</span>
+                    </a>
                     {% if session.role in ['admin', 'hrd'] %}
-                    <li>
-                        <a href="{{ url_for('employee.index') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg">
-                            <i class="fas fa-users mr-3"></i>Data Karyawan
-                        </a>
-                    </li>
+                    <a href="{{ url_for('employee.index') }}" class="sidebar-item flex items-center gap-4 rounded-xl px-4 py-3.5 text-sm font-semibold text-slate-700 transition-all group">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-500/5 border border-blue-200/50 group-hover:from-blue-500/20 group-hover:to-blue-500/10 group-hover:border-blue-300 transition-all">
+                            <i class="fas fa-users text-blue-600 text-lg"></i>
+                        </div>
+                        <span>Data Karyawan</span>
+                    </a>
                     {% endif %}
-                    <li>
-                        <a href="{{ url_for('leave.index') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg">
-                            <i class="fas fa-calendar-times mr-3"></i>Izin/Cuti/Sakit
-                        </a>
-                    </li>
-                    <li>
-                        <a href="{{ url_for('overtime.index') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg">
-                            <i class="fas fa-clock mr-3"></i>Lembur
-                        </a>
-                    </li>
+                    <a href="{{ url_for('leave.index') }}" class="sidebar-item flex items-center gap-4 rounded-xl px-4 py-3.5 text-sm font-semibold text-slate-700 transition-all group">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-500/5 border border-blue-200/50 group-hover:from-blue-500/20 group-hover:to-blue-500/10 group-hover:border-blue-300 transition-all">
+                            <i class="fas fa-calendar-times text-blue-600 text-lg"></i>
+                        </div>
+                        <span>Izin/Cuti/Sakit</span>
+                    </a>
+                    <a href="{{ url_for('overtime.index') }}" class="sidebar-item flex items-center gap-4 rounded-xl px-4 py-3.5 text-sm font-semibold text-slate-700 transition-all group">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-500/5 border border-blue-200/50 group-hover:from-blue-500/20 group-hover:to-blue-500/10 group-hover:border-blue-300 transition-all">
+                            <i class="fas fa-clock text-blue-600 text-lg"></i>
+                        </div>
+                        <span>Lembur</span>
+                    </a>
                     {% if session.role == 'admin' %}
-                    <li>
-                        <a href="{{ url_for('audit.index') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg">
-                            <i class="fas fa-history mr-3"></i>Audit Log
-                        </a>
-                    </li>
+                    <a href="{{ url_for('audit.index') }}" class="sidebar-item flex items-center gap-4 rounded-xl px-4 py-3.5 text-sm font-semibold text-slate-700 transition-all group">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500/10 to-blue-500/5 border border-blue-200/50 group-hover:from-blue-500/20 group-hover:to-blue-500/10 group-hover:border-blue-300 transition-all">
+                            <i class="fas fa-history text-blue-600 text-lg"></i>
+                        </div>
+                        <span>Audit Log</span>
+                    </a>
                     {% endif %}
-                </ul>
-            </nav>
+                </nav>
+            </div>
         </aside>
         
-        <!-- Main Content -->
-        <main class="flex-1 p-6">
+        <!-- Main Content with Container -->
+        <main class="flex-1 lg:ml-0 min-w-0">
+            <div class="w-full px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+                <div class="mx-auto max-w-7xl">
     {% endif %}
     
     <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <div id="flashMessages" class="mb-4">
+            <div id="flashMessages" class="mb-4 space-y-2">
                 {% for category, message in messages %}
-                    <div class="p-4 mb-2 rounded-lg {% if category == 'error' %}bg-red-100 text-red-700{% elif category == 'success' %}bg-green-100 text-green-700{% elif category == 'warning' %}bg-yellow-100 text-yellow-700{% else %}bg-blue-100 text-blue-700{% endif %}">
-                        {{ message }}
+                    <div class="relative rounded-xl border p-4 shadow-lg backdrop-blur-sm {% if category == 'error' %}border-red-200 bg-gradient-to-r from-red-50 to-red-50/50 text-red-700{% elif category == 'success' %}border-green-200 bg-gradient-to-r from-green-50 to-green-50/50 text-green-700{% elif category == 'warning' %}border-yellow-200 bg-gradient-to-r from-yellow-50 to-yellow-50/50 text-yellow-700{% else %}border-blue-200 bg-gradient-to-r from-blue-50 to-blue-50/50 text-blue-700{% endif %}">
+                        <div class="flex items-start gap-3">
+                            <div class="flex h-5 w-5 items-center justify-center rounded-full {% if category == 'error' %}bg-red-100{% elif category == 'success' %}bg-green-100{% elif category == 'warning' %}bg-yellow-100{% else %}bg-blue-100{% endif %}">
+                                <i class="fas {% if category == 'error' %}fa-exclamation-circle{% elif category == 'success' %}fa-check-circle{% elif category == 'warning' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} text-xs"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm font-medium">{{ message }}</p>
+                            </div>
+                        </div>
                     </div>
                 {% endfor %}
             </div>
@@ -143,21 +385,60 @@
     {% block content %}{% endblock %}
     
     {% if session.user_id %}
+                </div>
+            </div>
         </main>
     </div>
     {% endif %}
     
     <script>
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const mobileOverlay = document.getElementById('mobileOverlay');
+        
+        function toggleMobileMenu() {
+            sidebar.classList.toggle('open');
+            mobileOverlay.classList.toggle('active');
+            if (sidebar.classList.contains('open')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+        
+        function closeMobileMenu() {
+            sidebar.classList.remove('open');
+            mobileOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        mobileMenuBtn?.addEventListener('click', toggleMobileMenu);
+        
+        // Close sidebar when clicking on a link (mobile)
+        if (window.innerWidth <= 1024) {
+            document.querySelectorAll('aside a').forEach(link => {
+                link.addEventListener('click', closeMobileMenu);
+            });
+        }
+        
         // Notification dropdown
-        document.getElementById('notificationBtn')?.addEventListener('click', function() {
+        document.getElementById('notificationBtn')?.addEventListener('click', function(e) {
+            e.stopPropagation();
             const dropdown = document.getElementById('notificationDropdown');
             dropdown.classList.toggle('hidden');
+            // Close user menu if open
+            document.getElementById('userMenu')?.classList.add('hidden');
             loadNotifications();
         });
         
         // User menu dropdown
-        document.getElementById('userMenuBtn')?.addEventListener('click', function() {
-            document.getElementById('userMenu').classList.toggle('hidden');
+        document.getElementById('userMenuBtn')?.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const userMenu = document.getElementById('userMenu');
+            userMenu.classList.toggle('hidden');
+            // Close notification dropdown if open
+            document.getElementById('notificationDropdown')?.classList.add('hidden');
         });
         
         // Close dropdowns when clicking outside
@@ -182,15 +463,20 @@
                         badge.textContent = data.length;
                         badge.classList.remove('hidden');
                         list.innerHTML = data.map(n => `
-                            <div class="p-4 border-b hover:bg-gray-50 cursor-pointer" onclick="markRead(${n.id})">
-                                <h4 class="font-semibold">${n.title}</h4>
-                                <p class="text-sm text-gray-600">${n.message}</p>
-                                <span class="text-xs text-gray-400">${new Date(n.created_at).toLocaleString('id-ID')}</span>
+                            <div class="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors cursor-pointer border-b border-slate-100 last:border-0" onclick="markRead(${n.id})">
+                                <div class="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-blue-100 to-blue-50 flex-shrink-0">
+                                    <i class="fas fa-bell text-blue-600"></i>
+                                </div>
+                                <div class="flex-1 min-w-0">
+                                    <h4 class="text-sm font-semibold text-slate-800">${n.title}</h4>
+                                    <p class="text-xs text-slate-600 mt-1 line-clamp-2">${n.message}</p>
+                                    <span class="text-xs text-slate-400 mt-1 block">${new Date(n.created_at).toLocaleString('id-ID')}</span>
+                                </div>
                             </div>
                         `).join('');
                     } else {
                         badge.classList.add('hidden');
-                        list.innerHTML = '<div class="p-4 text-center text-gray-500">Tidak ada notifikasi</div>';
+                        list.innerHTML = '<div class="px-4 py-8 text-center text-sm text-slate-500">Tidak ada notifikasi</div>';
                     }
                 });
         }
@@ -202,8 +488,21 @@
         
         // Auto-hide flash messages
         setTimeout(() => {
-            document.getElementById('flashMessages')?.remove();
+            const flashMessages = document.getElementById('flashMessages');
+            if (flashMessages) {
+                flashMessages.style.transition = 'opacity 0.3s, transform 0.3s';
+                flashMessages.style.opacity = '0';
+                flashMessages.style.transform = 'translateY(-10px)';
+                setTimeout(() => flashMessages.remove(), 300);
+            }
         }, 5000);
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 1024) {
+                closeMobileMenu();
+            }
+        });
     </script>
     
     {% block extra_js %}{% endblock %}

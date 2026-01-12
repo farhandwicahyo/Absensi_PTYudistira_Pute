@@ -9,6 +9,9 @@ class Config:
     # Flask
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'dev-secret-key-change-in-production'
     
+    # Demo Mode (untuk melihat tampilan tanpa database)
+    DEMO_MODE = os.environ.get('DEMO_MODE', 'false').lower() in ['true', '1', 'yes']
+    
     # SQL Server Database
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'mssql+pyodbc://username:password@localhost/dbname?driver=ODBC+Driver+17+for+SQL+Server'

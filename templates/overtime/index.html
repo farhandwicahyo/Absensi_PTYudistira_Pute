@@ -3,97 +3,173 @@
 {% block title %}Lembur - Sistem Presensi Karyawan{% endblock %}
 
 {% block content %}
-<div class="mb-6 flex justify-between items-center">
-    <div>
-        <h1 class="text-3xl font-bold text-gray-800">Pengajuan Lembur</h1>
-        <p class="text-gray-600 mt-2">Kelola pengajuan lembur</p>
+<div class="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="space-y-1">
+            <h1 class="text-3xl sm:text-4xl font-bold tracking-tight gradient-text">Pengajuan Lembur</h1>
+            <p class="text-muted-foreground">Kelola pengajuan lembur</p>
+        </div>
+        {% if role == 'karyawan' %}
+        <a href="{{ url_for('overtime.create') }}" class="inline-flex items-center justify-center rounded-xl h-10 px-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all">
+            <i class="fas fa-plus mr-2"></i><span class="hidden sm:inline">Ajukan Lembur</span><span class="sm:hidden">Ajukan</span>
+        </a>
+        {% endif %}
     </div>
-    {% if role == 'karyawan' %}
-    <a href="{{ url_for('overtime.create') }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-        <i class="fas fa-plus mr-2"></i>Ajukan Lembur
-    </a>
-    {% endif %}
-</div>
 
-<div class="bg-white rounded-lg shadow overflow-hidden">
-    <div class="overflow-x-auto">
-        <table class="w-full">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left font-semibold text-gray-700">Tanggal</th>
-                    <th class="px-6 py-3 text-left font-semibold text-gray-700">Karyawan</th>
-                    <th class="px-6 py-3 text-left font-semibold text-gray-700">Jam</th>
-                    <th class="px-6 py-3 text-left font-semibold text-gray-700">Total Jam</th>
-                    <th class="px-6 py-3 text-left font-semibold text-gray-700">Alasan</th>
-                    <th class="px-6 py-3 text-left font-semibold text-gray-700">Status</th>
-                    <th class="px-6 py-3 text-left font-semibold text-gray-700">Aksi</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-                {% for overtime in overtimes %}
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4">{{ overtime.overtime_date.strftime('%d/%m/%Y') }}</td>
-                    <td class="px-6 py-4">{{ overtime.employee.full_name }}</td>
-                    <td class="px-6 py-4">
-                        {{ overtime.start_time.strftime('%H:%M') }} - {{ overtime.end_time.strftime('%H:%M') }}
-                    </td>
-                    <td class="px-6 py-4 font-semibold">{{ overtime.total_hours }} jam</td>
-                    <td class="px-6 py-4 text-sm text-gray-600">{{ overtime.reason[:50] }}...</td>
-                    <td class="px-6 py-4">
-                        <span class="px-3 py-1 rounded-full text-xs font-semibold
-                            {% if overtime.status == 'disetujui' %}bg-green-100 text-green-800
-                            {% elif overtime.status == 'ditolak' %}bg-red-100 text-red-800
-                            {% else %}bg-yellow-100 text-yellow-800{% endif %}">
-                            {{ overtime.status|upper }}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4">
-                        {% if role in ['atasan', 'admin', 'hrd'] and overtime.status == 'menunggu' %}
-                        <div class="flex space-x-2">
-                            <form method="POST" action="{{ url_for('overtime.approve', overtime_id=overtime.id) }}" class="inline">
-                                <button type="submit" class="text-green-600 hover:text-green-800"
-                                        onclick="return confirm('Setujui pengajuan ini?')">
-                                    <i class="fas fa-check"></i>
-                                </button>
-                            </form>
-                            <button onclick="showRejectModal({{ overtime.id }})" class="text-red-600 hover:text-red-800">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="7" class="px-6 py-8 text-center text-gray-500">
-                        Tidak ada pengajuan lembur
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<!-- Reject Modal -->
-<div id="rejectModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white rounded-lg p-6 max-w-md w-full">
-        <h3 class="text-xl font-bold mb-4">Tolak Pengajuan</h3>
-        <form id="rejectForm" method="POST">
-            <div class="mb-4">
-                <label class="block text-gray-700 font-semibold mb-2">Alasan Penolakan</label>
-                <textarea name="rejection_reason" rows="3" required
-                          class="w-full px-4 py-2 border border-gray-300 rounded-lg"></textarea>
+    <!-- Search & Filter Section -->
+    <div class="rounded-2xl border border-slate-200 bg-white/90 backdrop-blur-sm shadow-lg p-4 sm:p-6">
+        <form method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="space-y-2">
+                <label class="text-sm font-semibold text-slate-700">Tanggal Mulai</label>
+                <input type="date" name="start_date" value="{{ request.args.get('start_date', '') }}"
+                       class="w-full h-10 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
             </div>
-            <div class="flex justify-end space-x-3">
-                <button type="button" onclick="closeRejectModal()" class="px-4 py-2 border border-gray-300 rounded-lg">
-                    Batal
+            <div class="space-y-2">
+                <label class="text-sm font-semibold text-slate-700">Tanggal Akhir</label>
+                <input type="date" name="end_date" value="{{ request.args.get('end_date', '') }}"
+                       class="w-full h-10 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
+            </div>
+            <div class="space-y-2">
+                <label class="text-sm font-semibold text-slate-700">Status</label>
+                <select name="status" class="w-full h-10 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
+                    <option value="">Semua Status</option>
+                    <option value="menunggu" {% if request.args.get('status') == 'menunggu' %}selected{% endif %}>Menunggu</option>
+                    <option value="disetujui" {% if request.args.get('status') == 'disetujui' %}selected{% endif %}>Disetujui</option>
+                    <option value="ditolak" {% if request.args.get('status') == 'ditolak' %}selected{% endif %}>Ditolak</option>
+                </select>
+            </div>
+            <div class="flex items-end gap-2">
+                <button type="submit" class="flex-1 inline-flex items-center justify-center rounded-xl h-10 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all">
+                    <i class="fas fa-search mr-2"></i>Filter
                 </button>
-                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-                    Tolak
-                </button>
+                <a href="{{ url_for('overtime.index') }}" class="inline-flex items-center justify-center rounded-xl h-10 w-10 border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition-all">
+                    <i class="fas fa-redo"></i>
+                </a>
             </div>
         </form>
+    </div>
+
+    <!-- Table View (Responsive with horizontal scroll) -->
+    <div class="rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-sm shadow-xl overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full min-w-[1000px] caption-bottom text-sm">
+                <thead>
+                    <tr class="border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100/50">
+                        <th class="h-14 px-6 text-left align-middle font-bold text-slate-700">Tanggal</th>
+                        <th class="h-14 px-6 text-left align-middle font-bold text-slate-700">Karyawan</th>
+                        <th class="h-14 px-6 text-left align-middle font-bold text-slate-700">Jam</th>
+                        <th class="h-14 px-6 text-left align-middle font-bold text-slate-700">Total Jam</th>
+                        <th class="h-14 px-6 text-left align-middle font-bold text-slate-700">Alasan</th>
+                        <th class="h-14 px-6 text-left align-middle font-bold text-slate-700">Status</th>
+                        <th class="h-14 px-6 text-left align-middle font-bold text-slate-700">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for overtime in overtimes %}
+                    <tr class="border-b border-slate-100 transition-all hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-transparent group">
+                        <td class="p-5 align-middle">
+                            <div class="text-sm font-semibold text-slate-800">{{ overtime.overtime_date.strftime('%d/%m/%Y') }}</div>
+                        </td>
+                        <td class="p-5 align-middle">
+                            <div class="font-semibold text-slate-800">{{ overtime.employee.full_name }}</div>
+                        </td>
+                        <td class="p-5 align-middle">
+                            <div class="text-sm text-slate-700">{{ overtime.start_time.strftime('%H:%M') }} - {{ overtime.end_time.strftime('%H:%M') }}</div>
+                        </td>
+                        <td class="p-5 align-middle">
+                            <div class="text-sm font-bold text-blue-600">{{ overtime.total_hours }} jam</div>
+                        </td>
+                        <td class="p-5 align-middle">
+                            <div class="text-sm text-slate-600 max-w-xs truncate">{{ overtime.reason }}</div>
+                        </td>
+                        <td class="p-5 align-middle">
+                            <span class="inline-flex items-center rounded-full px-3 py-1.5 text-xs font-bold transition-all shadow-md
+                                {% if overtime.status == 'disetujui' %}bg-gradient-to-r from-green-500 to-green-600 text-white
+                                {% elif overtime.status == 'ditolak' %}bg-gradient-to-r from-red-500 to-red-600 text-white
+                                {% else %}bg-gradient-to-r from-yellow-500 to-yellow-600 text-white{% endif %}">
+                                {{ overtime.status|upper }}
+                            </span>
+                        </td>
+                        <td class="p-5 align-middle">
+                            {% if role in ['atasan', 'admin', 'hrd'] and overtime.status == 'menunggu' %}
+                            <div class="flex items-center gap-2">
+                                <form method="POST" action="{{ url_for('overtime.approve', overtime_id=overtime.id) }}" class="inline">
+                                    <button type="submit" class="inline-flex items-center justify-center rounded-xl w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md hover:shadow-lg hover:scale-110 active:scale-95 transition-all" 
+                                            onclick="return confirm('Setujui pengajuan ini?')" title="Approve">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                </form>
+                                <button onclick="showRejectModal({{ overtime.id }})" class="inline-flex items-center justify-center rounded-xl w-10 h-10 bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md hover:shadow-lg hover:scale-110 active:scale-95 transition-all" title="Reject">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                            {% else %}
+                            <span class="text-slate-400 text-sm">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="h-32 text-center">
+                            <div class="flex flex-col items-center gap-2">
+                                <i class="fas fa-inbox text-4xl text-slate-300"></i>
+                                <div class="text-slate-500 font-medium">Tidak ada pengajuan lembur</div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Reject Modal (Enhanced) -->
+    <div id="rejectModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" onclick="closeRejectModal()"></div>
+        <div class="relative z-50 w-full max-w-lg rounded-xl border bg-gradient-to-br from-background to-background/95 p-6 shadow-2xl backdrop-blur-sm">
+            <div class="flex flex-col space-y-1.5 text-center sm:text-left">
+                <div class="flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-destructive/20">
+                        <i class="fas fa-times-circle text-destructive"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold leading-none tracking-tight">Tolak Pengajuan</h3>
+                        <p class="text-sm text-muted-foreground">Berikan alasan penolakan untuk pengajuan ini.</p>
+                    </div>
+                </div>
+            </div>
+            <form id="rejectForm" method="POST" class="mt-4 space-y-4">
+                <div class="space-y-2">
+                    <label for="rejection_reason" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                        Alasan Penolakan
+                    </label>
+                    <textarea 
+                        id="rejection_reason"
+                        name="rejection_reason" 
+                        rows="3" 
+                        required
+                        class="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        placeholder="Masukkan alasan penolakan..."
+                    ></textarea>
+                </div>
+                <div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
+                    <button 
+                        type="button" 
+                        onclick="closeRejectModal()" 
+                        class="mt-2 sm:mt-0 inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+                    >
+                        Batal
+                    </button>
+                    <button 
+                        type="submit" 
+                        class="inline-flex h-10 items-center justify-center rounded-md bg-gradient-to-r from-destructive to-red-600 px-4 py-2 text-sm font-medium text-destructive-foreground ring-offset-background transition-all hover:from-red-600 hover:to-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 shadow-lg hover:shadow-xl hover:scale-105"
+                    >
+                        Tolak
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 

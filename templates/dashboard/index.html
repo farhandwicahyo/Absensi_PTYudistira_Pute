@@ -3,154 +3,263 @@
 {% block title %}Dashboard - Sistem Presensi Karyawan{% endblock %}
 
 {% block content %}
-<div class="mb-6">
-    <h1 class="text-3xl font-bold text-gray-800">Dashboard</h1>
-    <p class="text-gray-600 mt-2">
-        Selamat datang, <strong>{{ session.username }}</strong>!
-        {% if role == 'admin' %}
-            <span class="ml-2 px-2 py-1 bg-red-100 text-red-700 rounded-full text-sm">Administrator</span>
-        {% elif role == 'hrd' %}
-            <span class="ml-2 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">HRD</span>
-        {% elif role == 'atasan' %}
-            <span class="ml-2 px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">Atasan</span>
-        {% else %}
-            <span class="ml-2 px-2 py-1 bg-green-100 text-green-700 rounded-full text-sm">Karyawan</span>
-        {% endif %}
-    </p>
-</div>
-
-{% if role == 'karyawan' %}
-<!-- Employee Dashboard -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-    <div class="bg-white rounded-lg shadow p-6">
+<div class="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+    <!-- Header with gradient -->
+    <div class="flex flex-col space-y-2">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-600 text-sm">Presensi Hari Ini</p>
-                <p class="text-2xl font-bold text-gray-800 mt-2">
-                    {% if stats.today_attendance %}
-                        <span class="text-green-600">Sudah Presensi</span>
-                    {% else %}
-                        <span class="text-red-600">Belum Presensi</span>
-                    {% endif %}
+                <h1 class="text-3xl sm:text-4xl font-bold tracking-tight gradient-text">Dashboard</h1>
+                <p class="text-muted-foreground mt-2">
+                    Selamat datang, <strong class="text-foreground">{{ session.username }}</strong>!
                 </p>
             </div>
-            <i class="fas fa-calendar-check text-4xl text-blue-600"></i>
-        </div>
-    </div>
-    
-    <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-gray-600 text-sm">Pengajuan Pending</p>
-                <p class="text-2xl font-bold text-gray-800 mt-2">{{ stats.pending_leaves }}</p>
+            <div class="hidden sm:block">
+                {% if role == 'admin' %}
+                    <span class="inline-flex items-center rounded-full border px-3 py-1 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-gradient-to-r from-red-500 to-red-600 text-white shadow-lg">Administrator</span>
+                {% elif role == 'hrd' %}
+                    <span class="inline-flex items-center rounded-full border px-3 py-1 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg">HRD</span>
+                {% elif role == 'atasan' %}
+                    <span class="inline-flex items-center rounded-full border px-3 py-1 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg">Atasan</span>
+                {% else %}
+                    <span class="inline-flex items-center rounded-full border px-3 py-1 text-sm font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg">Karyawan</span>
+                {% endif %}
             </div>
-            <i class="fas fa-calendar-times text-4xl text-yellow-600"></i>
         </div>
     </div>
-    
-    <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-gray-600 text-sm">Lembur Pending</p>
-                <p class="text-2xl font-bold text-gray-800 mt-2">{{ stats.pending_overtimes }}</p>
-            </div>
-            <i class="fas fa-clock text-4xl text-purple-600"></i>
-        </div>
-    </div>
-</div>
 
-{% elif role in ['admin', 'hrd'] %}
-<!-- Admin/HRD Dashboard -->
-<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-    <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-gray-600 text-sm">Total Karyawan</p>
-                <p class="text-2xl font-bold text-gray-800 mt-2">{{ stats.total_employees }}</p>
+    {% if role == 'karyawan' %}
+    <!-- Employee Dashboard Cards with enhanced styling -->
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="group rounded-xl border bg-gradient-to-br from-card to-card/50 text-card-foreground shadow-lg hover:shadow-2xl transition-all duration-300 card-hover overflow-hidden relative">
+            <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="relative flex flex-col space-y-1.5 p-6">
+                <div class="flex items-center justify-between">
+                    <div class="space-y-1">
+                        <p class="text-sm font-medium leading-none text-muted-foreground">Presensi Hari Ini</p>
+                        <p class="text-3xl font-bold mt-2">
+                            {% if stats.today_attendance %}
+                                <span class="bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">Sudah Presensi</span>
+                            {% else %}
+                                <span class="bg-gradient-to-r from-destructive to-red-600 bg-clip-text text-transparent">Belum Presensi</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                    <div class="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 shadow-lg group-hover:scale-110 transition-transform">
+                        <i class="fas fa-calendar-check text-2xl text-primary"></i>
+                    </div>
+                </div>
             </div>
-            <i class="fas fa-users text-4xl text-blue-600"></i>
+        </div>
+        
+        <div class="group rounded-xl border bg-gradient-to-br from-card to-card/50 text-card-foreground shadow-lg hover:shadow-2xl transition-all duration-300 card-hover overflow-hidden relative">
+            <div class="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="relative flex flex-col space-y-1.5 p-6">
+                <div class="flex items-center justify-between">
+                    <div class="space-y-1">
+                        <p class="text-sm font-medium leading-none text-muted-foreground">Pengajuan Pending</p>
+                        <p class="text-3xl font-bold mt-2 bg-gradient-to-r from-yellow-600 to-yellow-700 bg-clip-text text-transparent">{{ stats.pending_leaves }}</p>
+                    </div>
+                    <div class="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-500/20 to-yellow-500/10 shadow-lg group-hover:scale-110 transition-transform">
+                        <i class="fas fa-calendar-times text-2xl text-yellow-600"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="group rounded-xl border bg-gradient-to-br from-card to-card/50 text-card-foreground shadow-lg hover:shadow-2xl transition-all duration-300 card-hover overflow-hidden relative sm:col-span-2 lg:col-span-1">
+            <div class="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="relative flex flex-col space-y-1.5 p-6">
+                <div class="flex items-center justify-between">
+                    <div class="space-y-1">
+                        <p class="text-sm font-medium leading-none text-muted-foreground">Lembur Pending</p>
+                        <p class="text-3xl font-bold mt-2 bg-gradient-to-r from-purple-600 to-purple-700 bg-clip-text text-transparent">{{ stats.pending_overtimes }}</p>
+                    </div>
+                    <div class="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-500/10 shadow-lg group-hover:scale-110 transition-transform">
+                        <i class="fas fa-clock text-2xl text-purple-600"></i>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    
-    <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-gray-600 text-sm">Presensi Hari Ini</p>
-                <p class="text-2xl font-bold text-gray-800 mt-2">{{ stats.today_attendances }}</p>
-            </div>
-            <i class="fas fa-calendar-check text-4xl text-green-600"></i>
-        </div>
-    </div>
-    
-    <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-gray-600 text-sm">Pengajuan Pending</p>
-                <p class="text-2xl font-bold text-gray-800 mt-2">{{ stats.pending_leaves }}</p>
-            </div>
-            <i class="fas fa-calendar-times text-4xl text-yellow-600"></i>
-        </div>
-    </div>
-    
-    <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-gray-600 text-sm">Lembur Pending</p>
-                <p class="text-2xl font-bold text-gray-800 mt-2">{{ stats.pending_overtimes }}</p>
-            </div>
-            <i class="fas fa-clock text-4xl text-purple-600"></i>
-        </div>
-    </div>
-</div>
 
-{% elif role == 'atasan' %}
-<!-- Supervisor Dashboard -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-    <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-gray-600 text-sm">Bawahan</p>
-                <p class="text-2xl font-bold text-gray-800 mt-2">{{ stats.subordinates }}</p>
+    {% elif role in ['admin', 'hrd'] %}
+    <!-- Admin/HRD Dashboard Cards with enhanced styling -->
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="group rounded-xl border bg-gradient-to-br from-card to-card/50 text-card-foreground shadow-lg hover:shadow-2xl transition-all duration-300 card-hover overflow-hidden relative">
+            <div class="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="relative flex flex-col space-y-1.5 p-6">
+                <div class="flex items-center justify-between">
+                    <div class="space-y-1">
+                        <p class="text-sm font-medium leading-none text-muted-foreground">Total Karyawan</p>
+                        <p class="text-3xl font-bold mt-2 bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">{{ stats.total_employees }}</p>
+                    </div>
+                    <div class="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500/20 to-blue-500/10 shadow-lg group-hover:scale-110 transition-transform">
+                        <i class="fas fa-users text-2xl text-blue-600"></i>
+                    </div>
+                </div>
             </div>
-            <i class="fas fa-users text-4xl text-blue-600"></i>
+        </div>
+        
+        <div class="group rounded-xl border bg-gradient-to-br from-card to-card/50 text-card-foreground shadow-lg hover:shadow-2xl transition-all duration-300 card-hover overflow-hidden relative">
+            <div class="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="relative flex flex-col space-y-1.5 p-6">
+                <div class="flex items-center justify-between">
+                    <div class="space-y-1">
+                        <p class="text-sm font-medium leading-none text-muted-foreground">Presensi Hari Ini</p>
+                        <p class="text-3xl font-bold mt-2 bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">{{ stats.today_attendances }}</p>
+                    </div>
+                    <div class="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-green-500/20 to-green-500/10 shadow-lg group-hover:scale-110 transition-transform">
+                        <i class="fas fa-calendar-check text-2xl text-green-600"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="group rounded-xl border bg-gradient-to-br from-card to-card/50 text-card-foreground shadow-lg hover:shadow-2xl transition-all duration-300 card-hover overflow-hidden relative">
+            <div class="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="relative flex flex-col space-y-1.5 p-6">
+                <div class="flex items-center justify-between">
+                    <div class="space-y-1">
+                        <p class="text-sm font-medium leading-none text-muted-foreground">Pengajuan Pending</p>
+                        <p class="text-3xl font-bold mt-2 bg-gradient-to-r from-yellow-600 to-yellow-700 bg-clip-text text-transparent">{{ stats.pending_leaves }}</p>
+                    </div>
+                    <div class="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-500/20 to-yellow-500/10 shadow-lg group-hover:scale-110 transition-transform">
+                        <i class="fas fa-calendar-times text-2xl text-yellow-600"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="group rounded-xl border bg-gradient-to-br from-card to-card/50 text-card-foreground shadow-lg hover:shadow-2xl transition-all duration-300 card-hover overflow-hidden relative">
+            <div class="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="relative flex flex-col space-y-1.5 p-6">
+                <div class="flex items-center justify-between">
+                    <div class="space-y-1">
+                        <p class="text-sm font-medium leading-none text-muted-foreground">Lembur Pending</p>
+                        <p class="text-3xl font-bold mt-2 bg-gradient-to-r from-purple-600 to-purple-700 bg-clip-text text-transparent">{{ stats.pending_overtimes }}</p>
+                    </div>
+                    <div class="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-500/10 shadow-lg group-hover:scale-110 transition-transform">
+                        <i class="fas fa-clock text-2xl text-purple-600"></i>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    
-    <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-gray-600 text-sm">Pengajuan Pending</p>
-                <p class="text-2xl font-bold text-gray-800 mt-2">{{ stats.pending_leaves }}</p>
-            </div>
-            <i class="fas fa-calendar-times text-4xl text-yellow-600"></i>
-        </div>
-    </div>
-    
-    <div class="bg-white rounded-lg shadow p-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-gray-600 text-sm">Lembur Pending</p>
-                <p class="text-2xl font-bold text-gray-800 mt-2">{{ stats.pending_overtimes }}</p>
-            </div>
-            <i class="fas fa-clock text-4xl text-purple-600"></i>
-        </div>
-    </div>
-</div>
-{% endif %}
 
-<!-- Recent Notifications -->
-{% if notifications %}
-<div class="bg-white rounded-lg shadow p-6">
-    <h2 class="text-xl font-bold text-gray-800 mb-4">Notifikasi Terbaru</h2>
-    <div class="space-y-3">
-        {% for notification in notifications %}
-        <div class="p-4 bg-gray-50 rounded-lg {% if not notification.is_read %}border-l-4 border-blue-600{% endif %}">
-            <h3 class="font-semibold">{{ notification.title }}</h3>
-            <p class="text-sm text-gray-600 mt-1">{{ notification.message }}</p>
-            <span class="text-xs text-gray-400">{{ notification.created_at }}</span>
+    {% elif role == 'atasan' %}
+    <!-- Supervisor Dashboard Cards with enhanced styling -->
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="group rounded-xl border bg-gradient-to-br from-card to-card/50 text-card-foreground shadow-lg hover:shadow-2xl transition-all duration-300 card-hover overflow-hidden relative">
+            <div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="relative flex flex-col space-y-1.5 p-6">
+                <div class="flex items-center justify-between">
+                    <div class="space-y-1">
+                        <p class="text-sm font-medium leading-none text-muted-foreground">Bawahan</p>
+                        <p class="text-3xl font-bold mt-2 bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">{{ stats.subordinates }}</p>
+                    </div>
+                    <div class="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 shadow-lg group-hover:scale-110 transition-transform">
+                        <i class="fas fa-users text-2xl text-primary"></i>
+                    </div>
+                </div>
+            </div>
         </div>
-        {% endfor %}
+        
+        <div class="group rounded-xl border bg-gradient-to-br from-card to-card/50 text-card-foreground shadow-lg hover:shadow-2xl transition-all duration-300 card-hover overflow-hidden relative">
+            <div class="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="relative flex flex-col space-y-1.5 p-6">
+                <div class="flex items-center justify-between">
+                    <div class="space-y-1">
+                        <p class="text-sm font-medium leading-none text-muted-foreground">Pengajuan Pending</p>
+                        <p class="text-3xl font-bold mt-2 bg-gradient-to-r from-yellow-600 to-yellow-700 bg-clip-text text-transparent">{{ stats.pending_leaves }}</p>
+                    </div>
+                    <div class="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-yellow-500/20 to-yellow-500/10 shadow-lg group-hover:scale-110 transition-transform">
+                        <i class="fas fa-calendar-times text-2xl text-yellow-600"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="group rounded-xl border bg-gradient-to-br from-card to-card/50 text-card-foreground shadow-lg hover:shadow-2xl transition-all duration-300 card-hover overflow-hidden relative">
+            <div class="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="relative flex flex-col space-y-1.5 p-6">
+                <div class="flex items-center justify-between">
+                    <div class="space-y-1">
+                        <p class="text-sm font-medium leading-none text-muted-foreground">Lembur Pending</p>
+                        <p class="text-3xl font-bold mt-2 bg-gradient-to-r from-purple-600 to-purple-700 bg-clip-text text-transparent">{{ stats.pending_overtimes }}</p>
+                    </div>
+                    <div class="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-500/10 shadow-lg group-hover:scale-110 transition-transform">
+                        <i class="fas fa-clock text-2xl text-purple-600"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+    {% endif %}
+
+    <!-- Recent Notifications with Modern Styling & Animations -->
+    {% if notifications %}
+    <div class="rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-xl shadow-xl overflow-hidden">
+        <div class="flex flex-col">
+            <!-- Header -->
+            <div class="px-6 py-4 bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 border-b border-slate-200">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg">
+                            <i class="fas fa-bell text-white"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-800">Notifikasi Terbaru</h2>
+                            <p class="text-xs text-slate-600 mt-0.5">{{ notifications|length }} notifikasi</p>
+                        </div>
+                    </div>
+                    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/80 border border-slate-200">
+                        <i class="fas fa-chevron-right text-slate-600 text-xs"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Notifications List -->
+            <div class="p-4 space-y-3">
+                {% for notification in notifications %}
+                <div class="group relative rounded-xl border border-slate-200 bg-gradient-to-br from-white to-slate-50/50 p-4 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] hover:border-blue-300 {% if not notification.is_read %}ring-2 ring-blue-500/20 bg-gradient-to-br from-blue-50/50 to-white{% endif %}">
+                    <!-- Unread Indicator -->
+                    {% if not notification.is_read %}
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-blue-600 rounded-l-xl"></div>
+                    {% endif %}
+                    
+                    <div class="flex items-start gap-4">
+                        <!-- Icon -->
+                        <div class="flex-shrink-0">
+                            <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br {% if not notification.is_read %}from-blue-500 to-blue-600{% else %}from-slate-200 to-slate-100{% endif %} shadow-md group-hover:scale-110 transition-transform">
+                                <i class="fas {% if notification.notification_type == 'presensi' %}fa-calendar-check{% elif notification.notification_type == 'leave' %}fa-calendar-times{% elif notification.notification_type == 'overtime' %}fa-clock{% else %}fa-info-circle{% endif %} text-white text-lg"></i>
+                            </div>
+                        </div>
+                        
+                        <!-- Content -->
+                        <div class="flex-1 min-w-0 space-y-2">
+                            <div class="flex items-start justify-between gap-2">
+                                <h3 class="text-sm font-bold text-slate-800 group-hover:text-blue-600 transition-colors">
+                                    {{ notification.title }}
+                                </h3>
+                                {% if not notification.is_read %}
+                                <span class="flex-shrink-0 h-2 w-2 rounded-full bg-blue-500 animate-pulse"></span>
+                                {% endif %}
+                            </div>
+                            <p class="text-sm text-slate-600 leading-relaxed">{{ notification.message }}</p>
+                            <div class="flex items-center gap-2 text-xs text-slate-500">
+                                <i class="fas fa-clock"></i>
+                                <span>{{ notification.created_at }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Hover Effect Overlay -->
+                    <div class="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-500/0 to-blue-500/0 group-hover:from-blue-500/5 group-hover:to-transparent transition-all duration-300 pointer-events-none"></div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
-{% endif %}
 {% endblock %}

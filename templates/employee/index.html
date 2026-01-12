@@ -3,75 +3,124 @@
 {% block title %}Data Karyawan - Sistem Presensi Karyawan{% endblock %}
 
 {% block content %}
-<div class="mb-6 flex justify-between items-center">
-    <div>
-        <h1 class="text-3xl font-bold text-gray-800">Data Karyawan</h1>
-        <p class="text-gray-600 mt-2">Kelola data karyawan</p>
+<div class="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="space-y-1">
+            <h1 class="text-3xl sm:text-4xl font-bold tracking-tight gradient-text">Data Karyawan</h1>
+            <p class="text-muted-foreground">Kelola data karyawan</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+            <a href="{{ url_for('employee.import_data') }}" class="inline-flex items-center justify-center rounded-xl h-10 px-4 bg-gradient-to-r from-green-500 to-green-600 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all">
+                <i class="fas fa-file-import mr-2"></i><span class="hidden sm:inline">Import</span>
+            </a>
+            <a href="{{ url_for('employee.export_data') }}" class="inline-flex items-center justify-center rounded-xl h-10 px-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all">
+                <i class="fas fa-file-export mr-2"></i><span class="hidden sm:inline">Export</span>
+            </a>
+            <a href="{{ url_for('employee.create') }}" class="inline-flex items-center justify-center rounded-xl h-10 px-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all">
+                <i class="fas fa-plus mr-2"></i><span class="hidden sm:inline">Tambah</span><span class="sm:hidden">+</span>
+            </a>
+        </div>
     </div>
-    <div class="flex space-x-3">
-        <a href="{{ url_for('employee.import_data') }}" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-            <i class="fas fa-file-import mr-2"></i>Import
-        </a>
-        <a href="{{ url_for('employee.export_data') }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-            <i class="fas fa-file-export mr-2"></i>Export
-        </a>
-        <a href="{{ url_for('employee.create') }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-            <i class="fas fa-plus mr-2"></i>Tambah Karyawan
-        </a>
-    </div>
-</div>
 
-<div class="bg-white rounded-lg shadow overflow-hidden">
-    <div class="overflow-x-auto">
-        <table class="w-full">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th class="px-6 py-3 text-left font-semibold text-gray-700">NIK</th>
-                    <th class="px-6 py-3 text-left font-semibold text-gray-700">Nama</th>
-                    <th class="px-6 py-3 text-left font-semibold text-gray-700">Email</th>
-                    <th class="px-6 py-3 text-left font-semibold text-gray-700">Jabatan</th>
-                    <th class="px-6 py-3 text-left font-semibold text-gray-700">Divisi</th>
-                    <th class="px-6 py-3 text-left font-semibold text-gray-700">Status</th>
-                    <th class="px-6 py-3 text-left font-semibold text-gray-700">Aksi</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200">
-                {% for employee in employees %}
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4">{{ employee.nik }}</td>
-                    <td class="px-6 py-4 font-semibold">{{ employee.full_name }}</td>
-                    <td class="px-6 py-4">{{ employee.email }}</td>
-                    <td class="px-6 py-4">{{ employee.position }}</td>
-                    <td class="px-6 py-4">{{ employee.division }}</td>
-                    <td class="px-6 py-4">
-                        <span class="px-3 py-1 rounded-full text-xs font-semibold
-                            {% if employee.status == 'aktif' %}bg-green-100 text-green-800
-                            {% else %}bg-red-100 text-red-800{% endif %}">
-                            {{ employee.status|upper }}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4">
-                        <a href="{{ url_for('employee.edit', employee_id=employee.id) }}" 
-                           class="text-blue-600 hover:text-blue-800 mr-3">
-                            <i class="fas fa-edit"></i>
-                        </a>
-                        <form method="POST" action="{{ url_for('employee.delete', employee_id=employee.id) }}" 
-                              class="inline" onsubmit="return confirm('Yakin ingin menonaktifkan karyawan ini?')">
-                            <button type="submit" class="text-red-600 hover:text-red-800">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </form>
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="7" class="px-6 py-8 text-center text-gray-500">
-                        Tidak ada data karyawan
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- Search & Filter Section -->
+    <div class="rounded-2xl border border-slate-200 bg-white/90 backdrop-blur-sm shadow-lg p-4 sm:p-6">
+        <form method="GET" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="sm:col-span-2 lg:col-span-2 space-y-2">
+                <label class="text-sm font-semibold text-slate-700">Cari Karyawan</label>
+                <div class="relative">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" name="search" value="{{ request.args.get('search', '') }}" placeholder="Cari nama, NIK, atau email..."
+                           class="w-full h-10 rounded-lg border border-slate-300 bg-white pl-10 pr-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
+                </div>
+            </div>
+            <div class="space-y-2">
+                <label class="text-sm font-semibold text-slate-700">Status</label>
+                <select name="status" class="w-full h-10 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">
+                    <option value="">Semua Status</option>
+                    <option value="aktif" {% if request.args.get('status') == 'aktif' %}selected{% endif %}>Aktif</option>
+                    <option value="nonaktif" {% if request.args.get('status') == 'nonaktif' %}selected{% endif %}>Nonaktif</option>
+                </select>
+            </div>
+            <div class="flex items-end gap-2">
+                <button type="submit" class="flex-1 inline-flex items-center justify-center rounded-xl h-10 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all">
+                    <i class="fas fa-search mr-2"></i>Filter
+                </button>
+                <a href="{{ url_for('employee.index') }}" class="inline-flex items-center justify-center rounded-xl h-10 w-10 border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition-all">
+                    <i class="fas fa-redo"></i>
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Table View (Responsive with horizontal scroll) -->
+    <div class="rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-sm shadow-xl overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full min-w-[900px] caption-bottom text-sm">
+                <thead>
+                    <tr class="border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100/50">
+                        <th class="h-14 px-6 text-left align-middle font-bold text-slate-700">NIK</th>
+                        <th class="h-14 px-6 text-left align-middle font-bold text-slate-700">Nama</th>
+                        <th class="h-14 px-6 text-left align-middle font-bold text-slate-700">Email</th>
+                        <th class="h-14 px-6 text-left align-middle font-bold text-slate-700">Jabatan</th>
+                        <th class="h-14 px-6 text-left align-middle font-bold text-slate-700">Divisi</th>
+                        <th class="h-14 px-6 text-left align-middle font-bold text-slate-700">Status</th>
+                        <th class="h-14 px-6 text-left align-middle font-bold text-slate-700">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% for employee in employees %}
+                    <tr class="border-b border-slate-100 transition-all hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-transparent group">
+                        <td class="p-5 align-middle">
+                            <div class="text-sm font-semibold text-slate-800">{{ employee.nik }}</div>
+                        </td>
+                        <td class="p-5 align-middle">
+                            <div class="font-semibold text-slate-800">{{ employee.full_name }}</div>
+                        </td>
+                        <td class="p-5 align-middle">
+                            <div class="text-sm text-slate-600">{{ employee.email }}</div>
+                        </td>
+                        <td class="p-5 align-middle">
+                            <div class="text-sm text-slate-700">{{ employee.position }}</div>
+                        </td>
+                        <td class="p-5 align-middle">
+                            <div class="text-sm text-slate-700">{{ employee.division }}</div>
+                        </td>
+                        <td class="p-5 align-middle">
+                            <span class="inline-flex items-center rounded-full px-3 py-1.5 text-xs font-bold transition-all shadow-md
+                                {% if employee.status == 'aktif' %}bg-gradient-to-r from-green-500 to-green-600 text-white
+                                {% else %}bg-gradient-to-r from-red-500 to-red-600 text-white{% endif %}">
+                                {{ employee.status|upper }}
+                            </span>
+                        </td>
+                        <td class="p-5 align-middle">
+                            <div class="flex items-center gap-2">
+                                <a href="{{ url_for('employee.edit', employee_id=employee.id) }}" 
+                                   class="inline-flex items-center justify-center rounded-xl w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md hover:shadow-lg hover:scale-110 active:scale-95 transition-all">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form method="POST" action="{{ url_for('employee.delete', employee_id=employee.id) }}" 
+                                      class="inline" onsubmit="return confirm('Yakin ingin menonaktifkan karyawan ini?')">
+                                    <button type="submit" class="inline-flex items-center justify-center rounded-xl w-10 h-10 bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md hover:shadow-lg hover:scale-110 active:scale-95 transition-all">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="h-32 text-center">
+                            <div class="flex flex-col items-center gap-2">
+                                <i class="fas fa-inbox text-4xl text-slate-300"></i>
+                                <div class="text-slate-500 font-medium">Tidak ada data karyawan</div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 {% endblock %}
