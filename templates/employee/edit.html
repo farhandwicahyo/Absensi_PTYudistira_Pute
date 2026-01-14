@@ -8,7 +8,7 @@
     <p class="text-gray-600 mt-2">Edit data karyawan</p>
 </div>
 
-<div class="bg-white rounded-lg shadow p-6 max-w-3xl">
+<div class="bg-white rounded-lg shadow p-6 max-w-3xl" data-has-user="{{ 'true' if employee.user else 'false' }}">
     <form method="POST">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -74,6 +74,123 @@
             </div>
         </div>
         
+        <!-- User Account Section -->
+        <div class="mt-8 pt-6 border-t border-gray-200">
+            <div class="mb-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">User Account</h3>
+                {% if employee.user %}
+                    <div class="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                        <p class="text-sm text-green-700">
+                            <i class="fas fa-check-circle mr-2"></i>
+                            User account sudah terhubung dengan karyawan ini
+                        </p>
+                    </div>
+                {% else %}
+                    <div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <p class="text-sm text-yellow-700">
+                            <i class="fas fa-exclamation-triangle mr-2"></i>
+                            Karyawan ini belum memiliki user account untuk login
+                        </p>
+                    </div>
+                    <div class="mb-4">
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="checkbox" name="create_user" id="create_user" value="1"
+                                   class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                   onchange="toggleUserFields()">
+                            <span class="text-gray-700 font-semibold">Buat User Account Baru</span>
+                        </label>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <div id="user_fields" class="grid grid-cols-1 md:grid-cols-2 gap-6 {% if not employee.user %}hidden{% endif %}">
+                {% if employee.user %}
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Username</label>
+                        <input type="text" name="username" id="username" value="{{ employee.user.username }}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                               required>
+                        <p class="text-xs text-gray-500 mt-1">Username untuk login</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Email User</label>
+                        <input type="email" name="user_email" id="user_email" value="{{ employee.user.email }}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                               required>
+                        <p class="text-xs text-gray-500 mt-1">Email untuk user account (bisa berbeda dengan email karyawan)</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Role</label>
+                        <select name="user_role" id="user_role" 
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="karyawan" {% if employee.user.role == 'karyawan' %}selected{% endif %}>Karyawan</option>
+                            <option value="atasan" {% if employee.user.role == 'atasan' %}selected{% endif %}>Atasan</option>
+                            <option value="hrd" {% if employee.user.role == 'hrd' %}selected{% endif %}>HRD</option>
+                            <option value="admin" {% if employee.user.role == 'admin' %}selected{% endif %}>Admin</option>
+                        </select>
+                        <p class="text-xs text-gray-500 mt-1">Role menentukan akses dan fitur yang tersedia</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Status User</label>
+                        <select name="user_is_active" id="user_is_active" 
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="1" {% if employee.user.is_active %}selected{% endif %}>Aktif</option>
+                            <option value="0" {% if not employee.user.is_active %}selected{% endif %}>Nonaktif</option>
+                        </select>
+                        <p class="text-xs text-gray-500 mt-1">User nonaktif tidak bisa login</p>
+                    </div>
+                    
+                    <div class="md:col-span-2">
+                        <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                            <p class="text-sm text-blue-700">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                <strong>Catatan:</strong> Password tidak bisa diubah di sini. Gunakan fitur reset password untuk mengubah password.
+                            </p>
+                        </div>
+                    </div>
+                {% else %}
+                    <!-- Fields untuk membuat user baru -->
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Username</label>
+                        <input type="text" name="username" id="username"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                               placeholder="Auto-generate dari NIK">
+                        <p class="text-xs text-gray-500 mt-1">Kosongkan untuk auto-generate dari NIK</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Email User</label>
+                        <input type="email" name="user_email" id="user_email" value="{{ employee.email }}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <p class="text-xs text-gray-500 mt-1">Default: email karyawan</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Password</label>
+                        <input type="password" name="password" id="password"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                               placeholder="Auto-generate dari NIK">
+                        <p class="text-xs text-gray-500 mt-1">Kosongkan untuk auto-generate (default: NIK)</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 font-semibold mb-2">Role</label>
+                        <select name="user_role" id="user_role" 
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <option value="karyawan" selected>Karyawan</option>
+                            <option value="atasan">Atasan</option>
+                            <option value="hrd">HRD</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                        <p class="text-xs text-gray-500 mt-1">Pilih role untuk user account</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
         <div class="mt-6 flex justify-end space-x-3">
             <a href="{{ url_for('employee.index') }}" class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
                 Batal
@@ -84,4 +201,54 @@
         </div>
     </form>
 </div>
+
+<script>
+function toggleUserFields() {
+    const checkbox = document.getElementById('create_user');
+    const userFields = document.getElementById('user_fields');
+    if (!userFields) return;
+    
+    const inputs = userFields.querySelectorAll('input, select');
+    
+    if (checkbox && checkbox.checked) {
+        userFields.style.display = 'grid';
+        inputs.forEach(input => {
+            input.disabled = false;
+            if (input.name === 'username' || input.name === 'password') {
+                input.required = false; // Username dan password bisa auto-generate
+            }
+        });
+    } else if (checkbox) {
+        userFields.style.display = 'none';
+        inputs.forEach(input => {
+            input.disabled = true;
+            input.required = false;
+        });
+    }
+}
+
+// Auto-generate username from NIK when NIK changes (only for new user)
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.querySelector('[data-has-user]');
+    const hasUser = container && container.getAttribute('data-has-user') === 'true';
+    
+    if (!hasUser) {
+        const nikInput = document.querySelector('input[name="nik"]');
+        if (nikInput) {
+            nikInput.addEventListener('input', function() {
+                const nik = this.value.trim().toLowerCase();
+                const usernameField = document.getElementById('username');
+                if (nik && usernameField && !usernameField.value) {
+                    usernameField.value = nik;
+                }
+            });
+        }
+        
+        const createUserCheckbox = document.getElementById('create_user');
+        if (createUserCheckbox) {
+            toggleUserFields();
+        }
+    }
+});
+</script>
 {% endblock %}

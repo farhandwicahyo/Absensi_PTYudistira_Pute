@@ -59,9 +59,61 @@ def create():
         )
         
         db.session.add(employee)
+        db.session.flush()  # Get employee.id without committing
+        
+        # Create user account if requested
+        create_user = request.form.get('create_user') == '1'
+        if create_user:
+            username = request.form.get('username', '').strip()
+            password = request.form.get('password', '').strip()
+            user_role = request.form.get('user_role', 'karyawan')
+            
+            # Auto-generate username from NIK if not provided
+            if not username:
+                username = nik.lower()
+            
+            # Auto-generate password from NIK if not provided
+            if not password:
+                password = nik  # Default password is NIK
+            
+            # Validate username uniqueness
+            if User.query.filter_by(username=username).first():
+                db.session.rollback()
+                flash(f'Username "{username}" sudah terdaftar. Silakan gunakan username lain.', 'error')
+                supervisors = Employee.query.filter_by(status='aktif').all()
+                return render_template('employee/create.html', supervisors=supervisors)
+            
+            # Validate email uniqueness for user
+            if User.query.filter_by(email=email).first():
+                db.session.rollback()
+                flash(f'Email "{email}" sudah terdaftar sebagai user. Silakan gunakan email lain.', 'error')
+                supervisors = Employee.query.filter_by(status='aktif').all()
+                return render_template('employee/create.html', supervisors=supervisors)
+            
+            # Create user
+            user = User(
+                username=username,
+                email=email,
+                role=user_role,
+                employee_id=employee.id,
+                is_active=True
+            )
+            user.set_password(password)
+            db.session.add(user)
+            
+            # Log audit for user creation
+            AuditLogger.log_data_change(
+                session.get('user_id'),
+                session.get('username'),
+                'create',
+                'users',
+                user.id,
+                f'Created user account for employee: {full_name} (username: {username})'
+            )
+        
         db.session.commit()
         
-        # Log audit
+        # Log audit for employee creation
         AuditLogger.log_data_change(
             session.get('user_id'),
             session.get('username'),
@@ -71,7 +123,11 @@ def create():
             f'Created employee: {full_name}'
         )
         
-        flash('Karyawan berhasil ditambahkan', 'success')
+        if create_user:
+            flash(f'Karyawan dan user account berhasil ditambahkan. Username: {username}, Password: {password}', 'success')
+        else:
+            flash('Karyawan berhasil ditambahkan', 'success')
+        
         return redirect(url_for('employee.index'))
     
     # Get supervisors for dropdown
@@ -98,9 +154,103 @@ def edit(employee_id):
         if request.form.get('hire_date'):
             employee.hire_date = datetime.strptime(request.form.get('hire_date'), '%Y-%m-%d').date()
         
+        # Handle user account update or creation
+        existing_user = User.query.filter_by(employee_id=employee.id).first()
+        create_user = request.form.get('create_user') == '1'
+        
+        if existing_user:
+            # Update existing user
+            new_username = request.form.get('username', '').strip()
+            new_user_email = request.form.get('user_email', '').strip()
+            new_user_role = request.form.get('user_role', 'karyawan')
+            user_is_active = request.form.get('user_is_active') == '1'
+            
+            # Update username if changed
+            if new_username and new_username != existing_user.username:
+                # Check if new username is available
+                if User.query.filter(User.username == new_username, User.id != existing_user.id).first():
+                    flash(f'Username "{new_username}" sudah terdaftar. Silakan gunakan username lain.', 'error')
+                    supervisors = Employee.query.filter_by(status='aktif').all()
+                    return render_template('employee/edit.html', employee=employee, supervisors=supervisors)
+                existing_user.username = new_username
+            
+            # Update email if changed
+            if new_user_email and new_user_email != existing_user.email:
+                # Check if new email is available
+                if User.query.filter(User.email == new_user_email, User.id != existing_user.id).first():
+                    flash(f'Email "{new_user_email}" sudah terdaftar sebagai user lain. Silakan gunakan email lain.', 'error')
+                    supervisors = Employee.query.filter_by(status='aktif').all()
+                    return render_template('employee/edit.html', employee=employee, supervisors=supervisors)
+                existing_user.email = new_user_email
+            
+            # Update role
+            if new_user_role != existing_user.role:
+                existing_user.role = new_user_role
+            
+            # Update is_active
+            existing_user.is_active = user_is_active
+            
+            # Log audit for user update
+            AuditLogger.log_data_change(
+                session.get('user_id'),
+                session.get('username'),
+                'update',
+                'users',
+                existing_user.id,
+                f'Updated user account for employee: {employee.full_name}'
+            )
+            
+        elif create_user:
+            # Create new user account
+            username = request.form.get('username', '').strip()
+            user_email = request.form.get('user_email', '').strip() or employee.email
+            password = request.form.get('password', '').strip()
+            user_role = request.form.get('user_role', 'karyawan')
+            
+            # Auto-generate username from NIK if not provided
+            if not username:
+                username = employee.nik.lower()
+            
+            # Auto-generate password from NIK if not provided
+            if not password:
+                password = employee.nik
+            
+            # Validate username uniqueness
+            if User.query.filter_by(username=username).first():
+                flash(f'Username "{username}" sudah terdaftar. Silakan gunakan username lain.', 'error')
+                supervisors = Employee.query.filter_by(status='aktif').all()
+                return render_template('employee/edit.html', employee=employee, supervisors=supervisors)
+            
+            # Validate email uniqueness for user
+            if User.query.filter_by(email=user_email).first():
+                flash(f'Email "{user_email}" sudah terdaftar sebagai user. Silakan gunakan email lain.', 'error')
+                supervisors = Employee.query.filter_by(status='aktif').all()
+                return render_template('employee/edit.html', employee=employee, supervisors=supervisors)
+            
+            # Create user
+            user = User(
+                username=username,
+                email=user_email,
+                role=user_role,
+                employee_id=employee.id,
+                is_active=True
+            )
+            user.set_password(password)
+            db.session.add(user)
+            
+            # Log audit for user creation
+            AuditLogger.log_data_change(
+                session.get('user_id'),
+                session.get('username'),
+                'create',
+                'users',
+                user.id,
+                f'Created user account for employee: {employee.full_name} (username: {username})'
+            )
+        
         db.session.commit()
         
-        # Log audit
+        # Log audit for employee update
         AuditLogger.log_data_change(
             session.get('user_id'),
             session.get('username'),

@@ -19,7 +19,7 @@ leave_bp = Blueprint('leave', __name__)
 @leave_bp.route('/')
 @login_required
 def index():
-    """Daftar pengajuan izin/cuti/sakit"""
+    """Daftar pengajuan Timeoff"""
     role = session.get('role')
     employee_id = session.get('employee_id')
     
@@ -64,7 +64,7 @@ def index():
 @leave_bp.route('/create', methods=['GET', 'POST'])
 @login_required
 def create():
-    """Buat pengajuan izin/cuti/sakit"""
+    """Buat pengajuan Timeoff"""
     employee_id = session.get('employee_id')
     
     if request.method == 'POST':

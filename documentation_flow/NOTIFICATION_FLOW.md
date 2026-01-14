@@ -18,11 +18,13 @@ Dokumen ini menjelaskan alur lengkap untuk sistem notifikasi dalam aplikasi pres
 ## 📢 Overview Notifikasi
 
 ### Tujuan
+
 - Memberikan informasi real-time kepada user
 - Meningkatkan engagement dan awareness
 - Memastikan user tidak melewatkan informasi penting
 
 ### Karakteristik
+
 - **Real-time**: Notifikasi dibuat saat event terjadi
 - **Role-based**: Notifikasi dikirim ke user yang relevan
 - **Persistent**: Notifikasi tersimpan di database
@@ -33,12 +35,14 @@ Dokumen ini menjelaskan alur lengkap untuk sistem notifikasi dalam aplikasi pres
 ## 📨 Jenis Notifikasi
 
 ### 1. **Presensi**
+
 - `presensi`: Notifikasi terkait presensi
   - Presensi berhasil
   - Presensi gagal
 
-### 2. **Leave (Izin/Cuti/Sakit)**
-- `leave`: Notifikasi terkait pengajuan izin/cuti/sakit
+### 2. **Leave (Timeoff)**
+
+- `leave`: Notifikasi terkait pengajuan Timeoff
   - Pengajuan dikirim
   - Pengajuan disetujui
   - Pengajuan ditolak
@@ -46,12 +50,14 @@ Dokumen ini menjelaskan alur lengkap untuk sistem notifikasi dalam aplikasi pres
   - Menunggu approval HRD (untuk HRD)
 
 ### 3. **Overtime (Lembur)**
+
 - `overtime`: Notifikasi terkait pengajuan lembur
   - Pengajuan dikirim
   - Pengajuan disetujui
   - Pengajuan ditolak
 
 ### 4. **System**
+
 - `system`: Notifikasi sistem umum
   - Update sistem
   - Maintenance
@@ -80,6 +86,7 @@ Return Notification Object
 ### Detail Proses
 
 #### 1. **Create Notification (Generic)**
+
 ```python
 def create_notification(user_id, title, message, notification_type, related_id=None):
     notification = Notification(
@@ -96,6 +103,7 @@ def create_notification(user_id, title, message, notification_type, related_id=N
 ```
 
 #### 2. **Helper Methods**
+
 ```python
 # Presensi berhasil
 notify_presensi_success(user_id, attendance_id)
@@ -141,6 +149,7 @@ Tampilkan Dropdown List
 ### Detail Proses
 
 #### 1. **Backend API**
+
 ```python
 @notification_bp.route('/unread')
 @login_required
@@ -150,45 +159,55 @@ def unread():
         user_id=user_id,
         is_read=False
     ).order_by(Notification.created_at.desc()).all()
-    
+
     return jsonify([n.to_dict() for n in notifications])
 ```
 
 #### 2. **Frontend Fetch**
+
 ```javascript
 function loadNotifications() {
-    fetch('/notification/unread')
-        .then(response => response.json())
-        .then(data => {
-            const badge = document.getElementById('notificationBadge');
-            const list = document.getElementById('notificationList');
-            
-            if (data.length > 0) {
-                badge.textContent = data.length;
-                badge.classList.remove('hidden');
-                
-                // Render notifications
-                list.innerHTML = data.map(n => `
+  fetch("/notification/unread")
+    .then((response) => response.json())
+    .then((data) => {
+      const badge = document.getElementById("notificationBadge");
+      const list = document.getElementById("notificationList");
+
+      if (data.length > 0) {
+        badge.textContent = data.length;
+        badge.classList.remove("hidden");
+
+        // Render notifications
+        list.innerHTML = data
+          .map(
+            (n) => `
                     <div class="notification-item">
                         <h4>${n.title}</h4>
                         <p>${n.message}</p>
-                        <span>${new Date(n.created_at).toLocaleString('id-ID')}</span>
+                        <span>${new Date(n.created_at).toLocaleString(
+                          "id-ID"
+                        )}</span>
                     </div>
-                `).join('');
-            } else {
-                badge.classList.add('hidden');
-                list.innerHTML = '<div>Tidak ada notifikasi</div>';
-            }
-        });
+                `
+          )
+          .join("");
+      } else {
+        badge.classList.add("hidden");
+        list.innerHTML = "<div>Tidak ada notifikasi</div>";
+      }
+    });
 }
 ```
 
 #### 3. **Auto Load**
+
 ```javascript
 // Load saat dropdown dibuka
-document.getElementById('notificationBtn').addEventListener('click', function() {
+document
+  .getElementById("notificationBtn")
+  .addEventListener("click", function () {
     loadNotifications();
-});
+  });
 
 // Auto load setiap 30 detik (optional)
 setInterval(loadNotifications, 30000);
@@ -215,24 +234,26 @@ Frontend: Reload Notifications
 ### Detail Proses
 
 #### 1. **Mark Single as Read**
+
 ```python
 @notification_bp.route('/<int:notification_id>/read', methods=['POST'])
 @login_required
 def mark_read(notification_id):
     user_id = session.get('user_id')
     notification = Notification.query.get_or_404(notification_id)
-    
+
     # Security: hanya bisa mark read notifikasi sendiri
     if notification.user_id != user_id:
         return jsonify({'success': False, 'message': 'Unauthorized'}), 403
-    
+
     notification.is_read = True
     db.session.commit()
-    
+
     return jsonify({'success': True})
 ```
 
 #### 2. **Mark All as Read**
+
 ```python
 @notification_bp.route('/read-all', methods=['POST'])
 @login_required
@@ -243,15 +264,17 @@ def mark_all_read():
         is_read=False
     ).update({'is_read': True})
     db.session.commit()
-    
+
     return jsonify({'success': True})
 ```
 
 #### 3. **Frontend**
+
 ```javascript
 function markRead(id) {
-    fetch(`/notification/${id}/read`, { method: 'POST' })
-        .then(() => loadNotifications());
+  fetch(`/notification/${id}/read`, { method: "POST" }).then(() =>
+    loadNotifications()
+  );
 }
 ```
 
@@ -270,6 +293,7 @@ NotificationHelper.notify_presensi_success(user_id, attendance_id)
 **Penerima:** Karyawan yang melakukan presensi
 
 **Pesan:**
+
 - Title: "Presensi Berhasil"
 - Message: "Presensi Anda telah berhasil dicatat."
 
@@ -286,14 +310,15 @@ NotificationHelper.notify_presensi_failed(user_id, reason)
 **Penerima:** Karyawan yang mencoba presensi
 
 **Pesan:**
+
 - Title: "Presensi Gagal"
 - Message: "Presensi gagal: {reason}"
 
 ---
 
-### 3. **Pengajuan Izin/Cuti/Sakit Dikirim**
+### 3. **Pengajuan Timeoff Dikirim**
 
-**Trigger:** Karyawan mengajukan izin/cuti/sakit
+**Trigger:** Karyawan mengajukan Timeoff
 
 ```python
 NotificationHelper.notify_leave_submitted(user_id, leave_request_id, leave_type)
@@ -302,6 +327,7 @@ NotificationHelper.notify_leave_submitted(user_id, leave_request_id, leave_type)
 **Penerima:** Karyawan yang mengajukan
 
 **Pesan:**
+
 - Title: "Pengajuan {leave_type} Dikirim"
 - Message: "Pengajuan {leave_type} Anda telah dikirim dan menunggu persetujuan."
 
@@ -309,7 +335,7 @@ NotificationHelper.notify_leave_submitted(user_id, leave_request_id, leave_type)
 
 ### 4. **Pengajuan Baru untuk Atasan**
 
-**Trigger:** Karyawan mengajukan izin/cuti/sakit (jika ada atasan)
+**Trigger:** Karyawan mengajukan Timeoff (jika ada atasan)
 
 ```python
 NotificationHelper.notify_supervisor_new_leave(
@@ -323,6 +349,7 @@ NotificationHelper.notify_supervisor_new_leave(
 **Penerima:** Atasan langsung
 
 **Pesan:**
+
 - Title: "Pengajuan {leave_type} Baru"
 - Message: "{employee_name} mengajukan {leave_type}. Silakan review dan approve."
 
@@ -344,6 +371,7 @@ NotificationHelper.notify_leave_approval(
 **Penerima:** Karyawan yang mengajukan
 
 **Pesan:**
+
 - Title: "Pengajuan {leave_type} {status}"
 - Message: "Pengajuan {leave_type} Anda telah {status}."
 
@@ -364,6 +392,7 @@ NotificationHelper.notify_hrd_pending_leave(
 **Penerima:** Semua user dengan role HRD/Admin
 
 **Pesan:**
+
 - Title: "Pengajuan Cuti Menunggu Approval HRD"
 - Message: "Pengajuan cuti dari {employee_name} telah disetujui atasan dan menunggu approval HRD."
 
@@ -380,6 +409,7 @@ NotificationHelper.notify_overtime_submitted(user_id, overtime_id)
 **Penerima:** Karyawan yang mengajukan
 
 **Pesan:**
+
 - Title: "Pengajuan Lembur Dikirim"
 - Message: "Pengajuan lembur Anda telah dikirim dan menunggu persetujuan."
 
@@ -400,6 +430,7 @@ NotificationHelper.notify_overtime_approval(
 **Penerima:** Karyawan yang mengajukan
 
 **Pesan:**
+
 - Title: "Pengajuan Lembur {status}"
 - Message: "Pengajuan lembur Anda telah {status}."
 
@@ -476,6 +507,7 @@ NotificationHelper.notify_overtime_approval(
 ## 🎯 Contoh Skenario
 
 ### Skenario 1: Notifikasi Presensi
+
 1. **Karyawan A** melakukan check-in
 2. Sistem buat notifikasi: "Presensi Berhasil"
 3. Badge notifikasi muncul: **1**
@@ -483,6 +515,7 @@ NotificationHelper.notify_overtime_approval(
 5. Badge hilang
 
 ### Skenario 2: Notifikasi Approval Cuti
+
 1. **Karyawan A** mengajukan cuti
 2. Notifikasi ke karyawan: "Pengajuan Cuti Dikirim"
 3. Notifikasi ke **Atasan B**: "Pengajuan Cuti Baru dari Karyawan A"
@@ -493,6 +526,7 @@ NotificationHelper.notify_overtime_approval(
 8. Notifikasi ke karyawan: "Pengajuan Cuti Disetujui"
 
 ### Skenario 3: Notifikasi Multiple
+
 1. **Karyawan A** punya 5 notifikasi belum dibaca
 2. Badge menampilkan: **5**
 3. User klik dropdown → Lihat 5 notifikasi
@@ -514,4 +548,4 @@ NotificationHelper.notify_overtime_approval(
 
 ---
 
-*Dokumen ini akan diperbarui jika ada perubahan pada flow notifikasi.*
+_Dokumen ini akan diperbarui jika ada perubahan pada flow notifikasi._

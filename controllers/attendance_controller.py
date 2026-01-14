@@ -39,10 +39,20 @@ def index():
     
     role = session.get('role')
     
+    # Office location for map
+    from config import Config
+    office_location = {
+        'latitude': Config.OFFICE_LATITUDE,
+        'longitude': Config.OFFICE_LONGITUDE,
+        'radius': Config.GEO_RADIUS_METERS
+    }
+    
     return render_template('attendance/index.html', 
                          today_attendance=today_attendance,
                          attendances=attendances,
-                         role=role)
+                         role=role,
+                         office_location=office_location,
+                         current_date=date.today())
 
 @attendance_bp.route('/check-in', methods=['POST'])
 @login_required
@@ -208,6 +218,126 @@ def check_out():
         'success': True,
         'message': 'Check-out berhasil',
         'check_out_time': now.isoformat()
+    })
+
+@attendance_bp.route('/manual-request', methods=['POST'])
+@login_required
+def manual_request():
+    """Ajukan cuti manual untuk lupa absen"""
+    employee_id = session.get('employee_id')
+    user_id = session.get('user_id')
+    
+    if not employee_id:
+        return jsonify({'success': False, 'message': 'Data karyawan tidak ditemukan'}), 400
+    
+    # Get data from request
+    data = request.get_json()
+    attendance_date_str = data.get('attendance_date')
+    notes = data.get('notes', '').strip()
+    status = data.get('status', 'alpha')  # Default to alpha if not provided
+    latitude = data.get('latitude')
+    longitude = data.get('longitude')
+    
+    # Validate required fields
+    if not attendance_date_str:
+        return jsonify({'success': False, 'message': 'Tanggal tidak boleh kosong'}), 400
+    
+    if not notes:
+        return jsonify({'success': False, 'message': 'Alasan tidak boleh kosong'}), 400
+    
+    if not latitude or not longitude:
+        return jsonify({'success': False, 'message': 'Lokasi tidak ditemukan. Pastikan izin lokasi diaktifkan'}), 400
+    
+    # Validate status
+    allowed_statuses = ['alpha', 'wfa', 'hadir', 'terlambat', 'pulang_cepat']
+    if status not in allowed_statuses:
+        return jsonify({'success': False, 'message': 'Status tidak valid'}), 400
+    
+    try:
+        attendance_date = datetime.strptime(attendance_date_str, '%Y-%m-%d').date()
+    except ValueError:
+        return jsonify({'success': False, 'message': 'Format tanggal tidak valid'}), 400
+    
+    # Validate date (cannot be in the future)
+    today = date.today()
+    if attendance_date > today:
+        return jsonify({'success': False, 'message': 'Tidak bisa mengajukan untuk tanggal di masa depan'}), 400
+    
+    # Check if attendance already exists for this date
+    existing = Attendance.query.filter_by(
+        employee_id=employee_id,
+        attendance_date=attendance_date
+    ).first()
+    
+    if existing and existing.check_in_time:
+        return jsonify({'success': False, 'message': 'Anda sudah melakukan presensi pada tanggal tersebut'}), 400
+    
+    # Get device info
+    device_info = get_device_info()
+    
+    # Create or update attendance record
+    now = datetime.utcnow()
+    
+    # Set default check-in and check-out time for manual request
+    # Check-in: 08:00, Check-out: 17:00 pada tanggal yang dipilih
+    check_in_default = datetime.combine(attendance_date, datetime.strptime(Config.CHECK_IN_START, '%H:%M').time())
+    check_out_default = datetime.combine(attendance_date, datetime.strptime(Config.CHECK_OUT_START, '%H:%M').time())
+    
+    if existing:
+        # Update existing record
+        existing.notes = notes
+        existing.check_in_time = check_in_default
+        existing.check_out_time = check_out_default
+        existing.check_in_latitude = latitude
+        existing.check_in_longitude = longitude
+        existing.check_out_latitude = latitude  # Use same location for both
+        existing.check_out_longitude = longitude
+        existing.check_in_ip = device_info['ip_address']
+        existing.check_in_browser = device_info['browser']
+        existing.check_in_os = device_info['os']
+        existing.check_out_ip = device_info['ip_address']
+        existing.check_out_browser = device_info['browser']
+        existing.check_out_os = device_info['os']
+        existing.status = status  # Use status from request
+        attendance = existing
+    else:
+        # Create new attendance record
+        attendance = Attendance(
+            employee_id=employee_id,
+            attendance_date=attendance_date,
+            check_in_time=check_in_default,  # Set default check-in time
+            check_out_time=check_out_default,  # Set default check-out time
+            check_in_latitude=latitude,
+            check_in_longitude=longitude,
+            check_out_latitude=latitude,  # Use same location for both
+            check_out_longitude=longitude,
+            check_in_ip=device_info['ip_address'],
+            check_in_browser=device_info['browser'],
+            check_in_os=device_info['os'],
+            check_out_ip=device_info['ip_address'],
+            check_out_browser=device_info['browser'],
+            check_out_os=device_info['os'],
+            status=status,  # Use status from request
+            notes=notes
+        )
+        db.session.add(attendance)
+    
+    db.session.commit()
+    
+    # Log audit
+    AuditLogger.log_presensi(
+        user_id,
+        session.get('username'),
+        'manual_request',
+        attendance.id,
+        f'Manual request for date: {attendance_date}, Location: {latitude}, {longitude}, Notes: {notes[:50]}'
+    )
+    
+    return jsonify({
+        'success': True,
+        'message': 'Pengajuan cuti manual berhasil diajukan',
+        'attendance_id': attendance.id,
+        'attendance_date': attendance_date.isoformat()
     })
 
 @attendance_bp.route('/history')

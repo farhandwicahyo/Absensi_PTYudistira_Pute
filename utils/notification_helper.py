@@ -50,7 +50,7 @@ class NotificationHelper:
     
     @staticmethod
     def notify_leave_submitted(user_id, leave_request_id, leave_type):
-        """Notifikasi pengajuan izin/cuti/sakit"""
+        """Notifikasi pengajuan Timeoff"""
         NotificationHelper.create_notification(
             user_id=user_id,
             title=f'Pengajuan {leave_type.capitalize()} Dikirim',
@@ -61,7 +61,7 @@ class NotificationHelper:
     
     @staticmethod
     def notify_leave_approval(user_id, leave_request_id, approved, leave_type, approver_role=''):
-        """Notifikasi persetujuan izin/cuti/sakit"""
+        """Notifikasi persetujuan Timeoff"""
         status = 'disetujui' if approved else 'ditolak'
         approver_text = f' oleh {approver_role}' if approver_role else ''
         NotificationHelper.create_notification(

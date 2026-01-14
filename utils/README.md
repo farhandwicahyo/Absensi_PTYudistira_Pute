@@ -28,11 +28,13 @@ Mencatat semua aktivitas penting di sistem ke dalam audit log untuk keamanan dan
 **Class & Methods:**
 
 #### `AuditLogger` (Class)
+
 Class utama untuk logging aktivitas sistem.
 
 **Methods:**
 
 1. **`log(user_id, username, activity, action, table_name, record_id, details)`**
+
    - **Fungsi**: Mencatat aktivitas umum ke audit log
    - **Parameter**:
      - `user_id`: ID user yang melakukan aktivitas
@@ -49,6 +51,7 @@ Class utama untuk logging aktivitas sistem.
      ```
 
 2. **`log_login(user_id, username, success=True)`**
+
    - **Fungsi**: Mencatat aktivitas login (berhasil/gagal)
    - **Parameter**:
      - `user_id`: ID user (None jika login gagal)
@@ -61,6 +64,7 @@ Class utama untuk logging aktivitas sistem.
      ```
 
 3. **`log_logout(user_id, username)`**
+
    - **Fungsi**: Mencatat aktivitas logout
    - **Parameter**:
      - `user_id`: ID user yang logout
@@ -71,6 +75,7 @@ Class utama untuk logging aktivitas sistem.
      ```
 
 4. **`log_presensi(user_id, username, action, attendance_id, details)`**
+
    - **Fungsi**: Mencatat aktivitas presensi (check-in/check-out)
    - **Parameter**:
      - `user_id`: ID user
@@ -98,6 +103,7 @@ Class utama untuk logging aktivitas sistem.
      ```
 
 **Informasi yang Dicatat:**
+
 - User ID dan username
 - Aktivitas dan aksi
 - Tabel dan record ID (jika ada)
@@ -107,6 +113,7 @@ Class utama untuk logging aktivitas sistem.
 - Detail tambahan
 
 **Digunakan di:**
+
 - `controllers/auth_controller.py` - Log login/logout
 - `controllers/attendance_controller.py` - Log presensi
 - `controllers/employee_controller.py` - Log perubahan data karyawan
@@ -123,6 +130,7 @@ Menyediakan decorators untuk melindungi route/rute agar hanya bisa diakses oleh 
 **Decorators:**
 
 1. **`@login_required`**
+
    - **Fungsi**: Memastikan user sudah login sebelum mengakses route
    - **Cara Kerja**:
      - Mengecek apakah `user_id` ada di session
@@ -137,8 +145,9 @@ Menyediakan decorators untuk melindungi route/rute agar hanya bisa diakses oleh 
      ```
 
 2. **`@role_required(*roles)`**
+
    - **Fungsi**: Memastikan user memiliki salah satu role yang diizinkan
-   - **Parameter**: 
+   - **Parameter**:
      - `*roles`: List role yang diizinkan (admin, hrd, atasan, karyawan)
    - **Cara Kerja**:
      - Mengecek apakah user sudah login
@@ -153,6 +162,7 @@ Menyediakan decorators untuk melindungi route/rute agar hanya bisa diakses oleh 
      ```
 
 3. **`@admin_required`**
+
    - **Fungsi**: Memastikan user adalah admin
    - **Cara Kerja**: Memanggil `@role_required('admin')`
    - **Contoh Penggunaan**:
@@ -164,6 +174,7 @@ Menyediakan decorators untuk melindungi route/rute agar hanya bisa diakses oleh 
      ```
 
 4. **`@hrd_required`**
+
    - **Fungsi**: Memastikan user adalah HRD atau admin
    - **Cara Kerja**: Memanggil `@role_required('admin', 'hrd')`
    - **Contoh Penggunaan**:
@@ -186,12 +197,14 @@ Menyediakan decorators untuk melindungi route/rute agar hanya bisa diakses oleh 
      ```
 
 **Keuntungan Menggunakan Decorators:**
+
 - **DRY (Don't Repeat Yourself)**: Tidak perlu menulis kode pengecekan di setiap route
 - **Konsistensi**: Semua route menggunakan logika yang sama
 - **Keamanan**: Memastikan tidak ada route yang terlewat dari pengecekan
 - **Mudah dirawat**: Jika ada perubahan logika, cukup edit di satu tempat
 
 **Digunakan di:**
+
 - Semua controller untuk melindungi route
 
 ---
@@ -204,6 +217,7 @@ Validasi apakah lokasi user berada dalam radius yang diizinkan untuk presensi (g
 **Functions:**
 
 1. **`calculate_distance(lat1, lon1, lat2, lon2)`**
+
    - **Fungsi**: Menghitung jarak antara dua koordinat GPS menggunakan formula Haversine
    - **Parameter**:
      - `lat1, lon1`: Koordinat pertama (latitude, longitude)
@@ -239,10 +253,12 @@ Validasi apakah lokasi user berada dalam radius yang diizinkan untuk presensi (g
      ```
 
 **Konfigurasi:**
+
 - Koordinat kantor: `Config.OFFICE_LATITUDE` dan `Config.OFFICE_LONGITUDE`
 - Radius: `Config.GEO_RADIUS_METERS` (default: 100 meter)
 
 **Digunakan di:**
+
 - `controllers/attendance_controller.py` - Validasi lokasi saat check-in/check-out
 
 ---
@@ -255,6 +271,7 @@ Mendeteksi informasi perangkat user dari HTTP request headers (browser, OS, IP a
 **Functions:**
 
 1. **`get_browser_info()`**
+
    - **Fungsi**: Mendeteksi browser dari User-Agent header
    - **Return**: String nama browser (Chrome, Firefox, Safari, Edge, Opera, atau Unknown)
    - **Cara Kerja**:
@@ -267,6 +284,7 @@ Mendeteksi informasi perangkat user dari HTTP request headers (browser, OS, IP a
      ```
 
 2. **`get_os_info()`**
+
    - **Fungsi**: Mendeteksi sistem operasi dari User-Agent header
    - **Return**: String nama OS (Windows, macOS, Linux, Android, iOS, atau Unknown)
    - **Cara Kerja**:
@@ -297,11 +315,13 @@ Mendeteksi informasi perangkat user dari HTTP request headers (browser, OS, IP a
      ```
 
 **Kegunaan:**
+
 - Mencatat informasi perangkat untuk audit log
 - Mencegah manipulasi presensi (dengan mencatat browser dan OS)
 - Analisis penggunaan sistem (browser/OS apa yang paling banyak digunakan)
 
 **Digunakan di:**
+
 - `controllers/auth_controller.py` - Mencatat info perangkat saat login
 - `controllers/attendance_controller.py` - Mencatat info perangkat saat presensi
 
@@ -315,11 +335,13 @@ Helper class untuk membuat notifikasi sistem dengan mudah dan konsisten.
 **Class & Methods:**
 
 #### `NotificationHelper` (Class)
+
 Class helper untuk membuat berbagai jenis notifikasi.
 
 **Methods:**
 
 1. **`create_notification(user_id, title, message, notification_type, related_id=None)`**
+
    - **Fungsi**: Membuat notifikasi umum
    - **Parameter**:
      - `user_id`: ID user yang akan menerima notifikasi
@@ -331,15 +353,16 @@ Class helper untuk membuat berbagai jenis notifikasi.
    - **Contoh Penggunaan**:
      ```python
      NotificationHelper.create_notification(
-         1, 
-         'Pesan Penting', 
-         'Ada pembaruan sistem', 
+         1,
+         'Pesan Penting',
+         'Ada pembaruan sistem',
          'system',
          related_id=None
      )
      ```
 
 2. **`notify_presensi_success(user_id, attendance_id)`**
+
    - **Fungsi**: Notifikasi presensi berhasil
    - **Parameter**:
      - `user_id`: ID user
@@ -350,6 +373,7 @@ Class helper untuk membuat berbagai jenis notifikasi.
      ```
 
 3. **`notify_presensi_failed(user_id, reason)`**
+
    - **Fungsi**: Notifikasi presensi gagal
    - **Parameter**:
      - `user_id`: ID user
@@ -360,7 +384,8 @@ Class helper untuk membuat berbagai jenis notifikasi.
      ```
 
 4. **`notify_leave_submitted(user_id, leave_request_id, leave_type)`**
-   - **Fungsi**: Notifikasi pengajuan izin/cuti/sakit dikirim
+
+   - **Fungsi**: Notifikasi pengajuan Timeoff dikirim
    - **Parameter**:
      - `user_id`: ID user yang mengajukan
      - `leave_request_id`: ID pengajuan
@@ -371,7 +396,8 @@ Class helper untuk membuat berbagai jenis notifikasi.
      ```
 
 5. **`notify_leave_approval(user_id, leave_request_id, approved, leave_type)`**
-   - **Fungsi**: Notifikasi persetujuan/tolakan izin/cuti/sakit
+
+   - **Fungsi**: Notifikasi persetujuan/tolakan Timeoff
    - **Parameter**:
      - `user_id`: ID user
      - `leave_request_id`: ID pengajuan
@@ -383,6 +409,7 @@ Class helper untuk membuat berbagai jenis notifikasi.
      ```
 
 6. **`notify_overtime_submitted(user_id, overtime_id)`**
+
    - **Fungsi**: Notifikasi pengajuan lembur dikirim
    - **Parameter**:
      - `user_id`: ID user
@@ -404,11 +431,13 @@ Class helper untuk membuat berbagai jenis notifikasi.
      ```
 
 **Keuntungan:**
+
 - Konsistensi: Semua notifikasi menggunakan format yang sama
 - Mudah digunakan: Cukup panggil method yang sesuai
 - Mudah dirawat: Jika format notifikasi berubah, cukup edit di satu tempat
 
 **Digunakan di:**
+
 - `controllers/attendance_controller.py` - Notifikasi presensi
 - `controllers/leave_controller.py` - Notifikasi pengajuan izin/cuti
 - `controllers/overtime_controller.py` - Notifikasi pengajuan lembur
@@ -428,20 +457,20 @@ def check_in():
     is_valid, distance = validate_location(latitude, longitude)  # ← dari geolocation.py
     if not is_valid:
         return jsonify({'error': 'Lokasi di luar radius'})
-    
+
     # 3. Dapatkan info perangkat
     device_info = get_device_info()  # ← dari device_info.py
-    
+
     # 4. Simpan presensi
     attendance = Attendance(...)
     db.session.commit()
-    
+
     # 5. Log ke audit log
     AuditLogger.log_presensi(...)  # ← dari audit_logger.py
-    
+
     # 6. Buat notifikasi
     NotificationHelper.notify_presensi_success(...)  # ← dari notification_helper.py
-    
+
     return jsonify({'success': True})
 ```
 
@@ -449,13 +478,13 @@ def check_in():
 
 ## 📊 Ringkasan
 
-| File | Fungsi Utama | Digunakan Untuk |
-|------|-------------|-----------------|
-| `audit_logger.py` | Mencatat aktivitas sistem | Keamanan, transparansi, audit |
-| `decorators.py` | Melindungi route | Autentikasi & autorisasi |
-| `geolocation.py` | Validasi lokasi GPS | Presensi berbasis lokasi |
-| `device_info.py` | Deteksi info perangkat | Audit log, keamanan |
-| `notification_helper.py` | Membuat notifikasi | Komunikasi dengan user |
+| File                     | Fungsi Utama              | Digunakan Untuk               |
+| ------------------------ | ------------------------- | ----------------------------- |
+| `audit_logger.py`        | Mencatat aktivitas sistem | Keamanan, transparansi, audit |
+| `decorators.py`          | Melindungi route          | Autentikasi & autorisasi      |
+| `geolocation.py`         | Validasi lokasi GPS       | Presensi berbasis lokasi      |
+| `device_info.py`         | Deteksi info perangkat    | Audit log, keamanan           |
+| `notification_helper.py` | Membuat notifikasi        | Komunikasi dengan user        |
 
 ---
 
@@ -471,6 +500,7 @@ def check_in():
 ## 🔧 Maintenance
 
 Jika perlu menambah fungsi baru:
+
 1. Tentukan apakah fungsi tersebut reusable (bisa digunakan di banyak tempat)
 2. Jika ya, tambahkan ke utils
 3. Jika tidak, letakkan di controller yang relevan

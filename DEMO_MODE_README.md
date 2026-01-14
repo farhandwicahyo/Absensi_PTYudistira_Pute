@@ -7,6 +7,7 @@ Dokumen ini menjelaskan cara menjalankan aplikasi dalam mode demo untuk melihat 
 ## 🎯 Tujuan
 
 Mode demo memungkinkan Anda untuk:
+
 - ✅ Melihat semua tampilan UI tanpa database
 - ✅ Test semua halaman dan fitur
 - ✅ Melihat perbedaan tampilan per role
@@ -59,21 +60,25 @@ python app.py
 Untuk melihat tampilan yang berbeda per role, gunakan URL berikut:
 
 ### Karyawan
+
 ```
 http://localhost:5000/change-role?role=karyawan
 ```
 
 ### Atasan
+
 ```
 http://localhost:5000/change-role?role=atasan
 ```
 
 ### HRD
+
 ```
 http://localhost:5000/change-role?role=hrd
 ```
 
 ### Admin
+
 ```
 http://localhost:5000/change-role?role=admin
 ```
@@ -85,15 +90,17 @@ Atau gunakan menu login dan pilih role di form (jika ada).
 ## 📋 Fitur yang Tersedia
 
 ### ✅ Bekerja (dengan Mock Data)
+
 - Dashboard (semua role)
 - Halaman Presensi
 - Halaman Data Karyawan
-- Halaman Izin/Cuti/Sakit
+- Halaman Timeoff
 - Halaman Lembur
 - Halaman Audit Log
 - Notifikasi
 
 ### ⚠️ Fitur yang Tidak Bekerja (karena tidak ada database)
+
 - Check-in/Check-out (hanya tampil pesan demo)
 - Simpan data (hanya flash message)
 - Approval (hanya flash message)
@@ -104,9 +111,10 @@ Atau gunakan menu login dan pilih role di form (jika ada).
 ## 📊 Mock Data
 
 Aplikasi menggunakan mock data untuk menampilkan:
+
 - **10 data karyawan** (dengan berbagai jabatan dan divisi)
 - **10 data presensi** (dengan berbagai status)
-- **5 data pengajuan izin/cuti/sakit**
+- **5 data pengajuan Timeoff**
 - **5 data pengajuan lembur**
 - **5 notifikasi**
 - **20 audit log**
@@ -118,34 +126,40 @@ Semua data ini **tidak tersimpan** dan akan **reset** setiap kali reload.
 ## 🎨 Halaman yang Bisa Dilihat
 
 ### 1. Dashboard
+
 - URL: `http://localhost:5000/`
 - Menampilkan statistik sesuai role
 - Notifikasi terbaru
 
 ### 2. Presensi
+
 - URL: `http://localhost:5000/attendance/`
 - Tampilan check-in/check-out
 - Riwayat presensi
 
 ### 3. Data Karyawan (HRD/Admin)
+
 - URL: `http://localhost:5000/employee/`
 - Daftar karyawan
 - Form tambah/edit
 - Import/Export
 
-### 4. Izin/Cuti/Sakit
+### 4. Timeoff
+
 - URL: `http://localhost:5000/leave/`
 - Daftar pengajuan
 - Form pengajuan
 - Approval (demo)
 
 ### 5. Lembur
+
 - URL: `http://localhost:5000/overtime/`
 - Daftar pengajuan lembur
 - Form pengajuan
 - Approval (demo)
 
 ### 6. Audit Log (Admin)
+
 - URL: `http://localhost:5000/audit/`
 - Daftar audit log
 - Filter tanggal dan aktivitas
@@ -154,14 +168,14 @@ Semua data ini **tidak tersimpan** dan akan **reset** setiap kali reload.
 
 ## 🔄 Perbedaan dengan Mode Normal
 
-| Aspek | Demo Mode | Normal Mode |
-|-------|-----------|-------------|
-| Database | ❌ Tidak perlu | ✅ Wajib |
-| Data | Mock data | Data real |
-| Simpan Data | ❌ Tidak tersimpan | ✅ Tersimpan |
-| Login | Auto login | Validasi password |
-| Check-in/out | Pesan demo | Validasi GPS & waktu |
-| Approval | Pesan demo | Update database |
+| Aspek        | Demo Mode          | Normal Mode          |
+| ------------ | ------------------ | -------------------- |
+| Database     | ❌ Tidak perlu     | ✅ Wajib             |
+| Data         | Mock data          | Data real            |
+| Simpan Data  | ❌ Tidak tersimpan | ✅ Tersimpan         |
+| Login        | Auto login         | Validasi password    |
+| Check-in/out | Pesan demo         | Validasi GPS & waktu |
+| Approval     | Pesan demo         | Update database      |
 
 ---
 
@@ -186,15 +200,18 @@ Semua data ini **tidak tersimpan** dan akan **reset** setiap kali reload.
 ## 🐛 Troubleshooting
 
 ### Error: Port sudah digunakan
+
 ```bash
 # Ganti port di app_demo.py
 app.run(debug=True, host='0.0.0.0', port=5001)
 ```
 
 ### Template tidak ditemukan
+
 Pastikan struktur folder `templates/` sudah benar.
 
 ### CSS/JS tidak load
+
 Pastikan koneksi internet aktif (untuk CDN Tailwind/Flowbite).
 
 ---
@@ -202,6 +219,7 @@ Pastikan koneksi internet aktif (untuk CDN Tailwind/Flowbite).
 ## 📝 Contoh Penggunaan
 
 ### 1. Melihat Tampilan Karyawan
+
 ```bash
 python app_demo.py
 # Buka: http://localhost:5000
@@ -209,6 +227,7 @@ python app_demo.py
 ```
 
 ### 2. Melihat Tampilan Admin
+
 ```bash
 python app_demo.py
 # Buka: http://localhost:5000/change-role?role=admin
@@ -216,6 +235,7 @@ python app_demo.py
 ```
 
 ### 3. Test Semua Halaman
+
 1. Dashboard: `http://localhost:5000/`
 2. Presensi: `http://localhost:5000/attendance/`
 3. Data Karyawan: `http://localhost:5000/employee/` (ganti role ke hrd/admin)
@@ -236,4 +256,4 @@ Setelah puas melihat tampilan, untuk menjalankan aplikasi dengan database:
 
 ---
 
-*Mode demo ini dibuat untuk memudahkan preview UI sebelum setup database.*
+_Mode demo ini dibuat untuk memudahkan preview UI sebelum setup database._

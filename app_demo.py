@@ -177,14 +177,14 @@ def export_data():
 
 @leave_bp.route('/')
 def index():
-    """Daftar pengajuan izin/cuti/sakit dengan mock data"""
+    """Daftar pengajuan Timeoff dengan mock data"""
     role = session.get('role', 'karyawan')
     leave_requests = get_mock_leave_requests(10)
     return render_template('leave/index.html', leave_requests=leave_requests, role=role)
 
 @leave_bp.route('/create', methods=['GET', 'POST'])
 def create():
-    """Buat pengajuan izin/cuti/sakit (demo)"""
+    """Buat pengajuan Timeoff (demo)"""
     if request.method == 'POST':
         flash('Pengajuan berhasil dikirim (Demo Mode)', 'success')
         return redirect(url_for('leave.index'))

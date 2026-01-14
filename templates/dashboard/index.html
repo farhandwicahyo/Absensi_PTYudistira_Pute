@@ -197,26 +197,44 @@
     {% endif %}
 
     <!-- Recent Notifications with Modern Styling & Animations -->
-    {% if notifications %}
     <div class="rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-xl shadow-xl overflow-hidden">
         <div class="flex flex-col">
             <!-- Header -->
             <div class="px-6 py-4 bg-gradient-to-r from-blue-50 via-indigo-50 to-blue-50 border-b border-slate-200">
-                <div class="flex items-center justify-between">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div class="flex items-center gap-3">
                         <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 shadow-lg">
                             <i class="fas fa-bell text-white"></i>
                         </div>
                         <div>
-                            <h2 class="text-xl font-bold text-slate-800">Notifikasi Terbaru</h2>
-                            <p class="text-xs text-slate-600 mt-0.5">{{ notifications|length }} notifikasi</p>
+                            <h2 class="text-xl font-bold text-slate-800">Notifikasi</h2>
+                            <p class="text-xs text-slate-600 mt-0.5">
+                                {% if notifications %}
+                                    {{ notifications|length }} notifikasi
+                                {% else %}
+                                    Tidak ada notifikasi
+                                {% endif %}
+                            </p>
                         </div>
                     </div>
-                    <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-white/80 border border-slate-200">
-                        <i class="fas fa-chevron-right text-slate-600 text-xs"></i>
-                    </div>
+                    <!-- Date Filter -->
+                    <form method="GET" action="{{ url_for('dashboard.index') }}" class="flex items-center gap-2">
+                        <input type="date" 
+                               name="notification_date" 
+                               value="{{ filter_date }}"
+                               class="px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                               onchange="this.form.submit()">
+                        {% if not is_default_date %}
+                        <a href="{{ url_for('dashboard.index') }}" 
+                           class="px-3 py-2 text-sm text-slate-600 hover:text-slate-800 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors">
+                            <i class="fas fa-times mr-1"></i>Reset
+                        </a>
+                        {% endif %}
+                    </form>
                 </div>
             </div>
+            
+            {% if notifications %}
             
             <!-- Notifications List -->
             <div class="p-4 space-y-3">
@@ -258,8 +276,19 @@
                 </div>
                 {% endfor %}
             </div>
+            {% else %}
+            <div class="p-8 text-center">
+                <i class="fas fa-inbox text-4xl text-slate-300 mb-3"></i>
+                <p class="text-slate-500 font-medium">
+                    {% if filter_date %}
+                        Tidak ada notifikasi pada tanggal yang dipilih
+                    {% else %}
+                        Tidak ada notifikasi baru
+                    {% endif %}
+                </p>
+            </div>
+            {% endif %}
         </div>
     </div>
-    {% endif %}
 </div>
 {% endblock %}

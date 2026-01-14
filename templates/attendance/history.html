@@ -94,6 +94,7 @@
                                 {% if attendance.status == 'hadir' %}bg-gradient-to-r from-green-500 to-green-600 text-white
                                 {% elif attendance.status == 'terlambat' %}bg-gradient-to-r from-yellow-500 to-yellow-600 text-white
                                 {% elif attendance.status == 'pulang_cepat' %}bg-gradient-to-r from-orange-500 to-orange-600 text-white
+                                {% elif attendance.status == 'wfa' %}bg-gradient-to-r from-blue-500 to-indigo-600 text-white
                                 {% else %}bg-gradient-to-r from-red-500 to-red-600 text-white{% endif %}">
                                 {{ attendance.status|upper|replace('_', ' ') }}
                             </span>

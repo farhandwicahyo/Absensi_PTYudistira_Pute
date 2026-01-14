@@ -1,273 +1,435 @@
-{% extends "base.html" %}
-
-{% block title %}Izin/Cuti/Sakit - Sistem Presensi Karyawan{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Timeoff - Sistem Presensi Karyawan{%
+endblock %} {% block content %}
 <div class="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-    <!-- Header with gradient -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div class="space-y-1">
-            <h1 class="text-3xl sm:text-4xl font-bold tracking-tight gradient-text">Pengajuan Izin/Cuti/Sakit</h1>
-            <p class="text-muted-foreground">Kelola pengajuan izin, cuti, dan sakit</p>
-        </div>
-        {% if role == 'karyawan' %}
-        <a href="{{ url_for('leave.create') }}" class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl hover:scale-105 h-10 px-4 py-2">
-            <i class="fas fa-plus mr-2"></i><span class="hidden sm:inline">Ajukan Izin/Cuti/Sakit</span><span class="sm:hidden">Ajukan</span>
-        </a>
-        {% endif %}
+  <!-- Header with gradient -->
+  <div
+    class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+  >
+    <div class="space-y-1">
+      <h1 class="text-3xl sm:text-4xl font-bold tracking-tight gradient-text">
+        Pengajuan Timeoff
+      </h1>
+      <p class="text-muted-foreground">
+        Kelola pengajuan izin, cuti, dan sakit
+      </p>
     </div>
+    {% if role == 'karyawan' %}
+    <a
+      href="{{ url_for('leave.create') }}"
+      class="inline-flex items-center justify-center rounded-lg text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-r from-primary to-primary/90 text-primary-foreground hover:from-primary/90 hover:to-primary shadow-lg hover:shadow-xl hover:scale-105 h-10 px-4 py-2"
+    >
+      <i class="fas fa-plus mr-2"></i
+      ><span class="hidden sm:inline">Ajukan Timeoff</span
+      ><span class="sm:hidden">Ajukan</span>
+    </a>
+    {% endif %}
+  </div>
 
-    <!-- Desktop Table View - Modern & Responsive -->
-    <div class="hidden lg:block rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-sm shadow-xl overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full caption-bottom text-sm">
-                <thead>
-                    <tr class="border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100/50">
-                        <th class="h-14 px-6 text-left align-middle font-bold text-slate-700">Tanggal</th>
-                        <th class="h-14 px-6 text-left align-middle font-bold text-slate-700">Karyawan</th>
-                        <th class="h-14 px-6 text-left align-middle font-bold text-slate-700">Jenis</th>
-                        <th class="h-14 px-6 text-left align-middle font-bold text-slate-700">Alasan</th>
-                        <th class="h-14 px-6 text-left align-middle font-bold text-slate-700">Status</th>
-                        <th class="h-14 px-6 text-left align-middle font-bold text-slate-700">Tahap Approval</th>
-                        <th class="h-14 px-6 text-left align-middle font-bold text-slate-700">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                    {% for leave in leave_requests %}
-                    <tr class="border-b border-slate-100 transition-all hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-transparent group">
-                        <td class="p-5 align-middle">
-                            <div class="text-sm font-semibold text-slate-800">{{ leave.start_date.strftime('%d/%m/%Y') }} - {{ leave.end_date.strftime('%d/%m/%Y') }}</div>
-                        </td>
-                        <td class="p-5 align-middle">
-                            <div class="font-semibold text-slate-800">{{ leave.employee.full_name }}</div>
-                        </td>
-                        <td class="p-5 align-middle">
-                            <span class="inline-flex items-center rounded-full px-3 py-1.5 text-xs font-bold transition-all shadow-md hover:shadow-lg
-                                {% if leave.leave_type == 'izin' %}bg-gradient-to-r from-blue-500 to-blue-600 text-white
-                                {% elif leave.leave_type == 'cuti' %}bg-gradient-to-r from-green-500 to-green-600 text-white
-                                {% else %}bg-gradient-to-r from-red-500 to-red-600 text-white{% endif %}">
-                                {{ leave.leave_type|upper }}
-                            </span>
-                        </td>
-                        <td class="p-5 align-middle">
-                            <div class="text-sm text-slate-600 max-w-xs truncate">{{ leave.reason }}</div>
-                        </td>
-                        <td class="p-5 align-middle">
-                            <span class="inline-flex items-center rounded-full px-3 py-1.5 text-xs font-bold transition-all shadow-md hover:shadow-lg
-                                {% if leave.status == 'disetujui' %}bg-gradient-to-r from-green-500 to-green-600 text-white
-                                {% elif leave.status == 'ditolak' %}bg-gradient-to-r from-red-500 to-red-600 text-white
-                                {% else %}bg-gradient-to-r from-yellow-500 to-yellow-600 text-white{% endif %}">
-                                {{ leave.status|upper|replace('_', ' ') }}
-                            </span>
-                        </td>
-                        <td class="p-5 align-middle">
-                            {% if leave.status == 'menunggu' and leave.supervisor_id %}
-                                <span class="inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-semibold transition-all shadow-md bg-gradient-to-r from-orange-500 to-orange-600 text-white">
-                                    <i class="fas fa-clock mr-1.5"></i>Menunggu Atasan
-                                </span>
-                            {% elif leave.status == 'menunggu_hrd' %}
-                                <span class="inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-semibold transition-all shadow-md bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-                                    <i class="fas fa-clock mr-1.5"></i>Menunggu HRD
-                                </span>
-                            {% elif leave.status == 'disetujui' %}
-                                <span class="inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-semibold transition-all shadow-md bg-gradient-to-r from-green-500 to-green-600 text-white">
-                                    <i class="fas fa-check-circle mr-1.5"></i>Disetujui
-                                </span>
-                            {% elif leave.status == 'ditolak' %}
-                                <span class="inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-semibold transition-all shadow-md bg-gradient-to-r from-red-500 to-red-600 text-white">
-                                    <i class="fas fa-times-circle mr-1.5"></i>Ditolak
-                                </span>
-                            {% else %}
-                                <span class="inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-semibold transition-all shadow-sm bg-slate-100 text-slate-600">
-                                    Menunggu Approval
-                                </span>
-                            {% endif %}
-                        </td>
-                        <td class="p-5 align-middle">
-                            {% if role == 'atasan' and leave.status in ['menunggu', 'menunggu_hrd'] and leave.supervisor_id == session.get('employee_id') %}
-                            <div class="flex items-center gap-2">
-                                <form method="POST" action="{{ url_for('leave.approve', leave_id=leave.id) }}" class="inline">
-                                    <button type="submit" class="inline-flex items-center justify-center rounded-xl w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md hover:shadow-lg hover:scale-110 active:scale-95 transition-all" 
-                                            onclick="return confirm('Setujui pengajuan ini?')" title="Approve">
-                                        <i class="fas fa-check"></i>
-                                    </button>
-                                </form>
-                                <button onclick="showRejectModal({{ leave.id }})" class="inline-flex items-center justify-center rounded-xl w-10 h-10 bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md hover:shadow-lg hover:scale-110 active:scale-95 transition-all" title="Reject">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                            {% elif role in ['admin', 'hrd'] and leave.status == 'menunggu_hrd' %}
-                            <div class="flex items-center gap-2">
-                                <form method="POST" action="{{ url_for('leave.approve', leave_id=leave.id) }}" class="inline">
-                                    <button type="submit" class="inline-flex items-center justify-center rounded-xl w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md hover:shadow-lg hover:scale-110 active:scale-95 transition-all" 
-                                            onclick="return confirm('Setujui pengajuan ini?')" title="Approve">
-                                        <i class="fas fa-check"></i>
-                                    </button>
-                                </form>
-                                <button onclick="showRejectModal({{ leave.id }})" class="inline-flex items-center justify-center rounded-xl w-10 h-10 bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md hover:shadow-lg hover:scale-110 active:scale-95 transition-all" title="Reject">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                            {% elif role in ['admin', 'hrd'] and leave.status == 'menunggu' and not leave.supervisor_id %}
-                            <div class="flex items-center gap-2">
-                                <form method="POST" action="{{ url_for('leave.approve', leave_id=leave.id) }}" class="inline">
-                                    <button type="submit" class="inline-flex items-center justify-center rounded-xl w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md hover:shadow-lg hover:scale-110 active:scale-95 transition-all" 
-                                            onclick="return confirm('Setujui pengajuan ini?')" title="Approve">
-                                        <i class="fas fa-check"></i>
-                                    </button>
-                                </form>
-                                <button onclick="showRejectModal({{ leave.id }})" class="inline-flex items-center justify-center rounded-xl w-10 h-10 bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md hover:shadow-lg hover:scale-110 active:scale-95 transition-all" title="Reject">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                            {% else %}
-                            <span class="text-slate-400 text-sm">-</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                        <td colspan="7" class="h-32 text-center">
-                            <div class="flex flex-col items-center gap-2">
-                                <i class="fas fa-inbox text-4xl text-slate-300"></i>
-                                <div class="text-slate-500 font-medium">Tidak ada pengajuan</div>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Mobile Card View - Modern & Responsive -->
-    <div class="lg:hidden space-y-4">
-        {% for leave in leave_requests %}
-        <div class="group rounded-2xl border border-slate-200 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all p-5 space-y-4">
-            <!-- Header -->
-            <div class="flex items-start justify-between gap-3">
-                <div class="flex-1 min-w-0">
-                    <div class="font-bold text-lg text-slate-800 mb-1">{{ leave.employee.full_name }}</div>
-                    <div class="flex items-center gap-2 text-sm text-slate-600">
-                        <i class="fas fa-calendar text-blue-500"></i>
-                        <span>{{ leave.start_date.strftime('%d/%m/%Y') }} - {{ leave.end_date.strftime('%d/%m/%Y') }}</span>
-                    </div>
-                </div>
-                <span class="inline-flex items-center rounded-full px-3 py-1.5 text-xs font-bold transition-all shadow-md flex-shrink-0
-                    {% if leave.leave_type == 'izin' %}bg-gradient-to-r from-blue-500 to-blue-600 text-white
-                    {% elif leave.leave_type == 'cuti' %}bg-gradient-to-r from-green-500 to-green-600 text-white
-                    {% else %}bg-gradient-to-r from-red-500 to-red-600 text-white{% endif %}">
-                    {{ leave.leave_type|upper }}
-                </span>
-            </div>
-            
-            <!-- Reason -->
-            <div class="text-sm text-slate-700 leading-relaxed bg-slate-50 rounded-lg p-3 border border-slate-100">
+  <!-- Desktop Table View - Modern & Responsive -->
+  <div
+    class="hidden lg:block rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-sm shadow-xl overflow-hidden"
+  >
+    <div class="overflow-x-auto">
+      <table class="w-full caption-bottom text-sm">
+        <thead>
+          <tr
+            class="border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100/50"
+          >
+            <th
+              class="h-14 px-6 text-left align-middle font-bold text-slate-700"
+            >
+              Tanggal
+            </th>
+            <th
+              class="h-14 px-6 text-left align-middle font-bold text-slate-700"
+            >
+              Karyawan
+            </th>
+            <th
+              class="h-14 px-6 text-left align-middle font-bold text-slate-700"
+            >
+              Jenis
+            </th>
+            <th
+              class="h-14 px-6 text-left align-middle font-bold text-slate-700"
+            >
+              Alasan
+            </th>
+            <th
+              class="h-14 px-6 text-left align-middle font-bold text-slate-700"
+            >
+              Status
+            </th>
+            <th
+              class="h-14 px-6 text-left align-middle font-bold text-slate-700"
+            >
+              Tahap Approval
+            </th>
+            <th
+              class="h-14 px-6 text-left align-middle font-bold text-slate-700"
+            >
+              Aksi
+            </th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-100">
+          {% for leave in leave_requests %}
+          <tr
+            class="border-b border-slate-100 transition-all hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-transparent group"
+          >
+            <td class="p-5 align-middle">
+              <div class="text-sm font-semibold text-slate-800">
+                {{ leave.start_date.strftime('%d/%m/%Y') }} - {{
+                leave.end_date.strftime('%d/%m/%Y') }}
+              </div>
+            </td>
+            <td class="p-5 align-middle">
+              <div class="font-semibold text-slate-800">
+                {{ leave.employee.full_name }}
+              </div>
+            </td>
+            <td class="p-5 align-middle">
+              <span
+                class="inline-flex items-center rounded-full px-3 py-1.5 text-xs font-bold transition-all shadow-md hover:shadow-lg {% if leave.leave_type == 'izin' %}bg-gradient-to-r from-blue-500 to-blue-600 text-white {% elif leave.leave_type == 'cuti' %}bg-gradient-to-r from-green-500 to-green-600 text-white {% else %}bg-gradient-to-r from-red-500 to-red-600 text-white{% endif %}"
+              >
+                {{ leave.leave_type|upper }}
+              </span>
+            </td>
+            <td class="p-5 align-middle">
+              <div class="text-sm text-slate-600 max-w-xs truncate">
                 {{ leave.reason }}
-            </div>
-            
-            <!-- Status & Approval Stage -->
-            <div class="flex flex-wrap gap-2">
-                <span class="inline-flex items-center rounded-full px-3 py-1.5 text-xs font-bold transition-all shadow-md
-                    {% if leave.status == 'disetujui' %}bg-gradient-to-r from-green-500 to-green-600 text-white
-                    {% elif leave.status == 'ditolak' %}bg-gradient-to-r from-red-500 to-red-600 text-white
-                    {% else %}bg-gradient-to-r from-yellow-500 to-yellow-600 text-white{% endif %}">
-                    {{ leave.status|upper|replace('_', ' ') }}
-                </span>
-                
-                {% if leave.status == 'menunggu' and leave.supervisor_id %}
-                    <span class="inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-semibold transition-all shadow-md bg-gradient-to-r from-orange-500 to-orange-600 text-white">
-                        <i class="fas fa-clock mr-1.5"></i>Menunggu Atasan
-                    </span>
-                {% elif leave.status == 'menunggu_hrd' %}
-                    <span class="inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-semibold transition-all shadow-md bg-gradient-to-r from-blue-500 to-blue-600 text-white">
-                        <i class="fas fa-clock mr-1.5"></i>Menunggu HRD
-                    </span>
-                {% endif %}
-            </div>
-            
-            <!-- Actions -->
-            {% if role == 'atasan' and leave.status in ['menunggu', 'menunggu_hrd'] and leave.supervisor_id == session.get('employee_id') or role in ['admin', 'hrd'] and (leave.status == 'menunggu_hrd' or (leave.status == 'menunggu' and not leave.supervisor_id)) %}
-            <div class="flex items-center gap-3 pt-3 border-t border-slate-200">
-                <form method="POST" action="{{ url_for('leave.approve', leave_id=leave.id) }}" class="flex-1">
-                    <button type="submit" class="w-full inline-flex items-center justify-center rounded-xl text-sm font-bold transition-all bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 h-11 px-4" 
-                            onclick="return confirm('Setujui pengajuan ini?')">
-                        <i class="fas fa-check mr-2"></i>Setujui
-                    </button>
+              </div>
+            </td>
+            <td class="p-5 align-middle">
+              <span
+                class="inline-flex items-center rounded-full px-3 py-1.5 text-xs font-bold transition-all shadow-md hover:shadow-lg {% if leave.status == 'disetujui' %}bg-gradient-to-r from-green-500 to-green-600 text-white {% elif leave.status == 'ditolak' %}bg-gradient-to-r from-red-500 to-red-600 text-white {% else %}bg-gradient-to-r from-yellow-500 to-yellow-600 text-white{% endif %}"
+              >
+                {{ leave.status|upper|replace('_', ' ') }}
+              </span>
+            </td>
+            <td class="p-5 align-middle">
+              {% if leave.status == 'menunggu' and leave.supervisor_id %}
+              <span
+                class="inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-semibold transition-all shadow-md bg-gradient-to-r from-orange-500 to-orange-600 text-white"
+              >
+                <i class="fas fa-clock mr-1.5"></i>Menunggu Atasan
+              </span>
+              {% elif leave.status == 'menunggu_hrd' %}
+              <span
+                class="inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-semibold transition-all shadow-md bg-gradient-to-r from-blue-500 to-blue-600 text-white"
+              >
+                <i class="fas fa-clock mr-1.5"></i>Menunggu HRD
+              </span>
+              {% elif leave.status == 'disetujui' %}
+              <span
+                class="inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-semibold transition-all shadow-md bg-gradient-to-r from-green-500 to-green-600 text-white"
+              >
+                <i class="fas fa-check-circle mr-1.5"></i>Disetujui
+              </span>
+              {% elif leave.status == 'ditolak' %}
+              <span
+                class="inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-semibold transition-all shadow-md bg-gradient-to-r from-red-500 to-red-600 text-white"
+              >
+                <i class="fas fa-times-circle mr-1.5"></i>Ditolak
+              </span>
+              {% else %}
+              <span
+                class="inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-semibold transition-all shadow-sm bg-slate-100 text-slate-600"
+              >
+                Menunggu Approval
+              </span>
+              {% endif %}
+            </td>
+            <td class="p-5 align-middle">
+              {% if role == 'atasan' and leave.status in ['menunggu',
+              'menunggu_hrd'] and leave.supervisor_id ==
+              session.get('employee_id') %}
+              <div class="flex items-center gap-2">
+                <form
+                  method="POST"
+                  action="{{ url_for('leave.approve', leave_id=leave.id) }}"
+                  class="inline"
+                >
+                  <button
+                    type="submit"
+                    class="inline-flex items-center justify-center rounded-xl w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md hover:shadow-lg hover:scale-110 active:scale-95 transition-all"
+                    onclick="return confirm('Setujui pengajuan ini?')"
+                    title="Approve"
+                  >
+                    <i class="fas fa-check"></i>
+                  </button>
                 </form>
-                <button onclick="showRejectModal({{ leave.id }})" class="flex-1 inline-flex items-center justify-center rounded-xl text-sm font-bold transition-all bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 h-11 px-4">
-                    <i class="fas fa-times mr-2"></i>Tolak
+                <button
+                  onclick="showRejectModal({{ leave.id }})"
+                  class="inline-flex items-center justify-center rounded-xl w-10 h-10 bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md hover:shadow-lg hover:scale-110 active:scale-95 transition-all"
+                  title="Reject"
+                >
+                  <i class="fas fa-times"></i>
                 </button>
-            </div>
-            {% endif %}
-        </div>
-        {% else %}
-        <div class="rounded-2xl border border-slate-200 bg-white/90 backdrop-blur-sm shadow-lg p-12 text-center">
-            <div class="flex flex-col items-center gap-3">
-                <i class="fas fa-inbox text-5xl text-slate-300"></i>
-                <div class="text-slate-500 font-semibold">Tidak ada pengajuan</div>
-            </div>
-        </div>
-        {% endfor %}
+              </div>
+              {% elif role in ['admin', 'hrd'] and leave.status ==
+              'menunggu_hrd' %}
+              <div class="flex items-center gap-2">
+                <form
+                  method="POST"
+                  action="{{ url_for('leave.approve', leave_id=leave.id) }}"
+                  class="inline"
+                >
+                  <button
+                    type="submit"
+                    class="inline-flex items-center justify-center rounded-xl w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md hover:shadow-lg hover:scale-110 active:scale-95 transition-all"
+                    onclick="return confirm('Setujui pengajuan ini?')"
+                    title="Approve"
+                  >
+                    <i class="fas fa-check"></i>
+                  </button>
+                </form>
+                <button
+                  onclick="showRejectModal({{ leave.id }})"
+                  class="inline-flex items-center justify-center rounded-xl w-10 h-10 bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md hover:shadow-lg hover:scale-110 active:scale-95 transition-all"
+                  title="Reject"
+                >
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              {% elif role in ['admin', 'hrd'] and leave.status == 'menunggu'
+              and not leave.supervisor_id %}
+              <div class="flex items-center gap-2">
+                <form
+                  method="POST"
+                  action="{{ url_for('leave.approve', leave_id=leave.id) }}"
+                  class="inline"
+                >
+                  <button
+                    type="submit"
+                    class="inline-flex items-center justify-center rounded-xl w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md hover:shadow-lg hover:scale-110 active:scale-95 transition-all"
+                    onclick="return confirm('Setujui pengajuan ini?')"
+                    title="Approve"
+                  >
+                    <i class="fas fa-check"></i>
+                  </button>
+                </form>
+                <button
+                  onclick="showRejectModal({{ leave.id }})"
+                  class="inline-flex items-center justify-center rounded-xl w-10 h-10 bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md hover:shadow-lg hover:scale-110 active:scale-95 transition-all"
+                  title="Reject"
+                >
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              {% else %}
+              <span class="text-slate-400 text-sm">-</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="7" class="h-32 text-center">
+              <div class="flex flex-col items-center gap-2">
+                <i class="fas fa-inbox text-4xl text-slate-300"></i>
+                <div class="text-slate-500 font-medium">
+                  Tidak ada pengajuan
+                </div>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
+  </div>
 
-    <!-- Reject Modal (Enhanced) -->
-    <div id="rejectModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" onclick="closeRejectModal()"></div>
-        <div class="relative z-50 w-full max-w-lg rounded-xl border bg-gradient-to-br from-background to-background/95 p-6 shadow-2xl backdrop-blur-sm">
-            <div class="flex flex-col space-y-1.5 text-center sm:text-left">
-                <div class="flex items-center gap-3">
-                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-destructive/20">
-                        <i class="fas fa-times-circle text-destructive"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-semibold leading-none tracking-tight">Tolak Pengajuan</h3>
-                        <p class="text-sm text-muted-foreground">Berikan alasan penolakan untuk pengajuan ini.</p>
-                    </div>
-                </div>
-            </div>
-            <form id="rejectForm" method="POST" class="mt-4 space-y-4">
-                <div class="space-y-2">
-                    <label for="rejection_reason" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                        Alasan Penolakan
-                    </label>
-                    <textarea 
-                        id="rejection_reason"
-                        name="rejection_reason" 
-                        rows="3" 
-                        required
-                        class="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        placeholder="Masukkan alasan penolakan..."
-                    ></textarea>
-                </div>
-                <div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
-                    <button 
-                        type="button" 
-                        onclick="closeRejectModal()" 
-                        class="mt-2 sm:mt-0 inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium ring-offset-background transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
-                    >
-                        Batal
-                    </button>
-                    <button 
-                        type="submit" 
-                        class="inline-flex h-10 items-center justify-center rounded-md bg-gradient-to-r from-destructive to-red-600 px-4 py-2 text-sm font-medium text-destructive-foreground ring-offset-background transition-all hover:from-red-600 hover:to-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 shadow-lg hover:shadow-xl hover:scale-105"
-                    >
-                        Tolak
-                    </button>
-                </div>
-            </form>
+  <!-- Mobile Card View - Modern & Responsive -->
+  <div class="lg:hidden space-y-4">
+    {% for leave in leave_requests %}
+    <div
+      class="group rounded-2xl border border-slate-200 bg-white/90 backdrop-blur-sm shadow-lg hover:shadow-xl transition-all p-5 space-y-4"
+    >
+      <!-- Header -->
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex-1 min-w-0">
+          <div class="font-bold text-lg text-slate-800 mb-1">
+            {{ leave.employee.full_name }}
+          </div>
+          <div class="flex items-center gap-2 text-sm text-slate-600">
+            <i class="fas fa-calendar text-blue-500"></i>
+            <span
+              >{{ leave.start_date.strftime('%d/%m/%Y') }} - {{
+              leave.end_date.strftime('%d/%m/%Y') }}</span
+            >
+          </div>
         </div>
+        <span
+          class="inline-flex items-center rounded-full px-3 py-1.5 text-xs font-bold transition-all shadow-md flex-shrink-0 {% if leave.leave_type == 'izin' %}bg-gradient-to-r from-blue-500 to-blue-600 text-white {% elif leave.leave_type == 'cuti' %}bg-gradient-to-r from-green-500 to-green-600 text-white {% else %}bg-gradient-to-r from-red-500 to-red-600 text-white{% endif %}"
+        >
+          {{ leave.leave_type|upper }}
+        </span>
+      </div>
+
+      <!-- Reason -->
+      <div
+        class="text-sm text-slate-700 leading-relaxed bg-slate-50 rounded-lg p-3 border border-slate-100"
+      >
+        {{ leave.reason }}
+      </div>
+
+      <!-- Status & Approval Stage -->
+      <div class="flex flex-wrap gap-2">
+        <span
+          class="inline-flex items-center rounded-full px-3 py-1.5 text-xs font-bold transition-all shadow-md {% if leave.status == 'disetujui' %}bg-gradient-to-r from-green-500 to-green-600 text-white {% elif leave.status == 'ditolak' %}bg-gradient-to-r from-red-500 to-red-600 text-white {% else %}bg-gradient-to-r from-yellow-500 to-yellow-600 text-white{% endif %}"
+        >
+          {{ leave.status|upper|replace('_', ' ') }}
+        </span>
+
+        {% if leave.status == 'menunggu' and leave.supervisor_id %}
+        <span
+          class="inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-semibold transition-all shadow-md bg-gradient-to-r from-orange-500 to-orange-600 text-white"
+        >
+          <i class="fas fa-clock mr-1.5"></i>Menunggu Atasan
+        </span>
+        {% elif leave.status == 'menunggu_hrd' %}
+        <span
+          class="inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-semibold transition-all shadow-md bg-gradient-to-r from-blue-500 to-blue-600 text-white"
+        >
+          <i class="fas fa-clock mr-1.5"></i>Menunggu HRD
+        </span>
+        {% endif %}
+      </div>
+
+      <!-- Actions -->
+      {% if role == 'atasan' and leave.status in ['menunggu', 'menunggu_hrd']
+      and leave.supervisor_id == session.get('employee_id') or role in ['admin',
+      'hrd'] and (leave.status == 'menunggu_hrd' or (leave.status == 'menunggu'
+      and not leave.supervisor_id)) %}
+      <div class="flex items-center gap-3 pt-3 border-t border-slate-200">
+        <form
+          method="POST"
+          action="{{ url_for('leave.approve', leave_id=leave.id) }}"
+          class="flex-1"
+        >
+          <button
+            type="submit"
+            class="w-full inline-flex items-center justify-center rounded-xl text-sm font-bold transition-all bg-gradient-to-r from-green-500 to-green-600 text-white hover:from-green-600 hover:to-green-700 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 h-11 px-4"
+            onclick="return confirm('Setujui pengajuan ini?')"
+          >
+            <i class="fas fa-check mr-2"></i>Setujui
+          </button>
+        </form>
+        <button
+          onclick="showRejectModal({{ leave.id }})"
+          class="flex-1 inline-flex items-center justify-center rounded-xl text-sm font-bold transition-all bg-gradient-to-r from-red-500 to-red-600 text-white hover:from-red-600 hover:to-red-700 shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 h-11 px-4"
+        >
+          <i class="fas fa-times mr-2"></i>Tolak
+        </button>
+      </div>
+      {% endif %}
     </div>
+    {% else %}
+    <div
+      class="rounded-2xl border border-slate-200 bg-white/90 backdrop-blur-sm shadow-lg p-12 text-center"
+    >
+      <div class="flex flex-col items-center gap-3">
+        <i class="fas fa-inbox text-5xl text-slate-300"></i>
+        <div class="text-slate-500 font-semibold">Tidak ada pengajuan</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Reject Modal (Modern Enhanced) -->
+  <div
+    id="rejectModal"
+    class="hidden fixed inset-0 z-[9999] flex items-center justify-center p-4 animate-in fade-in duration-200"
+    style="z-index: 9999;"
+  >
+    <!-- Modal Content -->
+    <div
+      class="relative w-full max-w-lg rounded-2xl border border-slate-200/50 bg-white/95 backdrop-blur-xl shadow-2xl p-0 overflow-hidden animate-in zoom-in-95 duration-200"
+      style="z-index: 10000;"
+    >
+      <!-- Header with gradient -->
+      <div class="relative bg-gradient-to-r from-red-500 via-red-600 to-red-700 p-6">
+        <button
+          onclick="closeRejectModal()"
+          class="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/20 hover:bg-white/30 text-white transition-all hover:scale-110 active:scale-95 backdrop-blur-sm"
+        >
+          <i class="fas fa-times text-sm"></i>
+        </button>
+        
+        <div class="flex items-start gap-4 pr-10">
+          <div
+            class="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm shadow-lg"
+          >
+            <i class="fas fa-times-circle text-2xl text-white"></i>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-2xl font-bold text-white mb-1">
+              Tolak Pengajuan
+            </h3>
+            <p class="text-sm text-red-50/90">
+              Berikan alasan penolakan yang jelas dan detail untuk pengajuan ini.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Content -->
+      <form id="rejectForm" method="POST" class="p-6 space-y-5">
+        <div class="space-y-2">
+          <label
+            for="rejection_reason"
+            class="block text-sm font-semibold text-slate-700 mb-2"
+          >
+            <i class="fas fa-comment-alt mr-2 text-red-500"></i>
+            Alasan Penolakan
+          </label>
+          <textarea
+            id="rejection_reason"
+            name="rejection_reason"
+            rows="4"
+            required
+            class="w-full px-4 py-3 rounded-xl border-2 border-slate-200 bg-slate-50/50 text-sm text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all resize-none"
+            placeholder="Jelaskan alasan mengapa pengajuan ini ditolak. Pastikan alasan yang diberikan jelas dan dapat dipahami oleh karyawan..."
+          ></textarea>
+          <p class="text-xs text-slate-500 mt-1">
+            <i class="fas fa-info-circle mr-1"></i>
+            Alasan penolakan akan dikirimkan ke karyawan yang mengajukan.
+          </p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div
+          class="flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-4 border-t border-slate-200"
+        >
+          <button
+            type="button"
+            onclick="closeRejectModal()"
+            class="inline-flex items-center justify-center h-11 px-6 rounded-xl border-2 border-slate-300 bg-white text-slate-700 font-semibold text-sm transition-all hover:bg-slate-50 hover:border-slate-400 hover:scale-105 active:scale-95 shadow-sm hover:shadow-md"
+          >
+            <i class="fas fa-times mr-2"></i>
+            Batal
+          </button>
+          <button
+            type="submit"
+            class="inline-flex items-center justify-center h-11 px-6 rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold text-sm shadow-lg hover:shadow-xl hover:from-red-600 hover:to-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-all hover:scale-105 active:scale-95"
+          >
+            <i class="fas fa-ban mr-2"></i>
+            Tolak Pengajuan
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 
 <script>
-function showRejectModal(leaveId) {
-    document.getElementById('rejectForm').action = `/leave/${leaveId}/reject`;
-    document.getElementById('rejectModal').classList.remove('hidden');
-}
+  function showRejectModal(leaveId) {
+    document.getElementById("rejectForm").action = `/leave/${leaveId}/reject`;
+    document.getElementById("rejectModal").classList.remove("hidden");
+  }
 
-function closeRejectModal() {
-    document.getElementById('rejectModal').classList.add('hidden');
-}
+  function closeRejectModal() {
+    document.getElementById("rejectModal").classList.add("hidden");
+  }
 </script>
 {% endblock %}

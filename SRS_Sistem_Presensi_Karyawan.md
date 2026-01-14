@@ -1,4 +1,5 @@
 # Sistem Requirement Specification (SRS)
+
 ## Sistem Presensi Karyawan Berbasis Website
 
 **Versi Dokumen:** 1.0  
@@ -30,6 +31,7 @@ Dokumen Sistem Requirement Specification (SRS) ini menjelaskan spesifikasi lengk
 ### 1.2 Scope
 
 Sistem Presensi Karyawan adalah aplikasi web berbasis Flask yang digunakan untuk:
+
 - Mencatat kehadiran karyawan secara real-time dengan validasi lokasi dan waktu
 - Mengelola data karyawan
 - Mengelola pengajuan izin, cuti, dan sakit dengan workflow approval
@@ -38,6 +40,7 @@ Sistem Presensi Karyawan adalah aplikasi web berbasis Flask yang digunakan untuk
 - Mencatat audit log untuk transparansi dan keamanan
 
 **Batasan Sistem:**
+
 - Sistem hanya dapat diakses melalui web browser
 - Presensi memerlukan akses GPS/lokasi dari browser
 - Sistem memerlukan koneksi internet untuk mengakses
@@ -45,19 +48,19 @@ Sistem Presensi Karyawan adalah aplikasi web berbasis Flask yang digunakan untuk
 
 ### 1.3 Definitions, Acronyms, and Abbreviations
 
-| Istilah | Definisi |
-|---------|----------|
-| **SRS** | Software Requirements Specification |
-| **Admin** | Administrator sistem dengan akses penuh |
-| **HRD** | Human Resources Department |
-| **Check-in** | Presensi masuk kerja |
-| **Check-out** | Presensi pulang kerja |
+| Istilah         | Definisi                                    |
+| --------------- | ------------------------------------------- |
+| **SRS**         | Software Requirements Specification         |
+| **Admin**       | Administrator sistem dengan akses penuh     |
+| **HRD**         | Human Resources Department                  |
+| **Check-in**    | Presensi masuk kerja                        |
+| **Check-out**   | Presensi pulang kerja                       |
 | **Geolocation** | Teknologi untuk menentukan lokasi geografis |
-| **Geofencing** | Teknologi untuk membatasi area presensi |
-| **RBAC** | Role-Based Access Control |
-| **MVC** | Model-View-Controller |
-| **API** | Application Programming Interface |
-| **CRUD** | Create, Read, Update, Delete |
+| **Geofencing**  | Teknologi untuk membatasi area presensi     |
+| **RBAC**        | Role-Based Access Control                   |
+| **MVC**         | Model-View-Controller                       |
+| **API**         | Application Programming Interface           |
+| **CRUD**        | Create, Read, Update, Delete                |
 
 ### 1.4 References
 
@@ -69,6 +72,7 @@ Sistem Presensi Karyawan adalah aplikasi web berbasis Flask yang digunakan untuk
 ### 1.5 Overview
 
 Dokumen ini terorganisir dalam beberapa bagian:
+
 - **Section 1**: Pendahuluan dan definisi
 - **Section 2**: Deskripsi keseluruhan sistem
 - **Section 3**: Requirement spesifik (fungsional dan non-fungsional)
@@ -85,11 +89,13 @@ Dokumen ini terorganisir dalam beberapa bagian:
 ### 2.1 Product Perspective
 
 Sistem Presensi Karyawan adalah sistem standalone yang beroperasi sebagai aplikasi web. Sistem ini berinteraksi dengan:
+
 - **Database**: Microsoft SQL Server untuk penyimpanan data
 - **Browser**: Web browser modern yang mendukung HTML5 Geolocation API
 - **Server**: Web server Flask (Python)
 
 **Diagram Konteks Sistem:**
+
 ```
 ┌─────────────┐
 │   Browser   │
@@ -114,37 +120,44 @@ Sistem Presensi Karyawan adalah sistem standalone yang beroperasi sebagai aplika
 Sistem menyediakan fungsi-fungsi utama berikut:
 
 1. **Autentikasi dan Autorisasi**
+
    - Login dan logout
    - Manajemen session
    - Role-based access control (Admin, HRD, Atasan, Karyawan)
 
 2. **Presensi Kehadiran**
+
    - Check-in dengan validasi lokasi dan waktu
    - Check-out dengan validasi lokasi dan waktu
    - Riwayat presensi
    - Status presensi (hadir, terlambat, pulang cepat, alpha)
 
 3. **Manajemen Data Karyawan**
+
    - CRUD data karyawan
    - Import/Export data (CSV/Excel)
    - Manajemen hierarki karyawan (supervisor)
 
-4. **Pengajuan Izin/Cuti/Sakit**
+4. **Pengajuan Timeoff**
+
    - Pengajuan oleh karyawan
    - Workflow approval (Atasan → HRD)
    - Upload dokumen pendukung
 
 5. **Pengajuan Lembur**
+
    - Pengajuan lembur oleh karyawan
    - Approval oleh atasan dan HRD
    - Perhitungan total jam lembur
 
 6. **Notifikasi Sistem**
+
    - Notifikasi real-time
    - Notifikasi untuk approval
    - Notifikasi presensi
 
 7. **Audit Log**
+
    - Pencatatan semua aktivitas penting
    - Tracking perubahan data
    - Log keamanan
@@ -157,44 +170,52 @@ Sistem menyediakan fungsi-fungsi utama berikut:
 ### 2.3 User Characteristics
 
 #### 2.3.1 Admin
+
 - **Pengetahuan**: Familiar dengan sistem komputer dan web browser
 - **Pengalaman**: Pengalaman menggunakan aplikasi web
 - **Tugas**: Mengelola seluruh sistem, data karyawan, dan audit log
 
 #### 2.3.2 HRD
+
 - **Pengetahuan**: Familiar dengan sistem komputer dan web browser
 - **Pengalaman**: Pengalaman menggunakan aplikasi web
 - **Tugas**: Mengelola data karyawan, approval pengajuan, laporan presensi
 
 #### 2.3.3 Atasan
+
 - **Pengetahuan**: Familiar dengan web browser
 - **Pengalaman**: Pengalaman dasar menggunakan aplikasi web
 - **Tugas**: Approval pengajuan bawahan, melihat laporan presensi bawahan
 
 #### 2.3.4 Karyawan
+
 - **Pengetahuan**: Familiar dengan web browser dan smartphone
 - **Pengalaman**: Pengalaman dasar menggunakan aplikasi web
-- **Tugas**: Presensi, pengajuan izin/cuti/sakit, pengajuan lembur
+- **Tugas**: Presensi, pengajuan Timeoff, pengajuan lembur
 
 ### 2.4 Constraints
 
 #### 2.4.1 Hardware Constraints
+
 - Server: Minimum 2GB RAM, 10GB storage
 - Client: Device dengan GPS capability untuk presensi berbasis lokasi
 - Network: Koneksi internet stabil
 
 #### 2.4.2 Software Constraints
+
 - **Server**: Python 3.8+, Flask 3.0+
 - **Database**: Microsoft SQL Server dengan ODBC Driver 17
 - **Browser**: Browser modern yang mendukung HTML5 Geolocation API (Chrome, Firefox, Edge, Safari)
 - **OS**: Windows Server untuk database, Linux/Windows untuk aplikasi
 
 #### 2.4.3 Regulatory Constraints
+
 - Kepatuhan terhadap kebijakan privasi data karyawan
 - Audit trail untuk transparansi
 - Backup data secara berkala
 
 #### 2.4.4 Interface Constraints
+
 - Sistem harus dapat diakses melalui web browser
 - Responsive design untuk mobile dan desktop
 - Kompatibilitas dengan berbagai ukuran layar
@@ -202,6 +223,7 @@ Sistem menyediakan fungsi-fungsi utama berikut:
 ### 2.5 Assumptions and Dependencies
 
 #### 2.5.1 Assumptions
+
 - Pengguna memiliki akses internet
 - Browser pengguna mendukung HTML5 Geolocation API
 - Pengguna memberikan izin akses lokasi saat presensi
@@ -209,6 +231,7 @@ Sistem menyediakan fungsi-fungsi utama berikut:
 - Koneksi database stabil
 
 #### 2.5.2 Dependencies
+
 - **Flask Framework**: Untuk web application
 - **SQLAlchemy**: Untuk ORM database
 - **Werkzeug**: Untuk password hashing
@@ -225,6 +248,7 @@ Sistem menyediakan fungsi-fungsi utama berikut:
 #### 3.1.1 Autentikasi dan Autorisasi
 
 **FR-001: Login**
+
 - **ID**: FR-001
 - **Prioritas**: High
 - **Deskripsi**: Sistem harus menyediakan halaman login untuk autentikasi pengguna
@@ -236,12 +260,13 @@ Sistem menyediakan fungsi-fungsi utama berikut:
   4. Sistem membuat session jika valid
   5. Sistem mencatat last_login dan IP address
 - **Output**: Redirect ke dashboard sesuai role
-- **Error Handling**: 
+- **Error Handling**:
   - Username/password salah → tampilkan pesan error
   - User tidak aktif → tampilkan pesan error
   - Session expired → redirect ke login
 
 **FR-002: Logout**
+
 - **ID**: FR-002
 - **Prioritas**: High
 - **Deskripsi**: Sistem harus menyediakan fungsi logout
@@ -252,6 +277,7 @@ Sistem menyediakan fungsi-fungsi utama berikut:
 - **Output**: Halaman login
 
 **FR-003: Session Management**
+
 - **ID**: FR-003
 - **Prioritas**: High
 - **Deskripsi**: Sistem harus mengelola session pengguna
@@ -262,6 +288,7 @@ Sistem menyediakan fungsi-fungsi utama berikut:
 - **Error Handling**: Session expired → redirect ke login
 
 **FR-004: Role-Based Access Control**
+
 - **ID**: FR-004
 - **Prioritas**: High
 - **Deskripsi**: Sistem harus membatasi akses berdasarkan role
@@ -275,10 +302,11 @@ Sistem menyediakan fungsi-fungsi utama berikut:
 #### 3.1.2 Presensi Kehadiran
 
 **FR-005: Check-in**
+
 - **ID**: FR-005
 - **Prioritas**: High
 - **Deskripsi**: Sistem harus menyediakan fungsi check-in untuk presensi masuk
-- **Input**: 
+- **Input**:
   - Employee ID (dari session)
   - Latitude dan Longitude (dari GPS)
   - Timestamp (dari server)
@@ -295,7 +323,7 @@ Sistem menyediakan fungsi-fungsi utama berikut:
   7. Sistem menyimpan data ke database
   8. Sistem membuat audit log
   9. Sistem membuat notifikasi
-- **Output**: 
+- **Output**:
   - Success: Pesan sukses dan update tampilan
   - Error: Pesan error sesuai validasi yang gagal
 - **Validasi**:
@@ -309,10 +337,11 @@ Sistem menyediakan fungsi-fungsi utama berikut:
   - GPS tidak tersedia → "Akses lokasi diperlukan untuk presensi"
 
 **FR-006: Check-out**
+
 - **ID**: FR-006
 - **Prioritas**: High
 - **Deskripsi**: Sistem harus menyediakan fungsi check-out untuk presensi pulang
-- **Input**: 
+- **Input**:
   - Employee ID (dari session)
   - Attendance ID (check-in hari ini)
   - Latitude dan Longitude (dari GPS)
@@ -328,7 +357,7 @@ Sistem menyediakan fungsi-fungsi utama berikut:
   8. Sistem update data check-out di database
   9. Sistem membuat audit log
   10. Sistem membuat notifikasi
-- **Output**: 
+- **Output**:
   - Success: Pesan sukses dan update tampilan
   - Error: Pesan error sesuai validasi yang gagal
 - **Validasi**:
@@ -340,6 +369,7 @@ Sistem menyediakan fungsi-fungsi utama berikut:
   - Lokasi di luar radius → "Anda berada di luar area kantor"
 
 **FR-007: Riwayat Presensi**
+
 - **ID**: FR-007
 - **Prioritas**: Medium
 - **Deskripsi**: Sistem harus menampilkan riwayat presensi
@@ -354,6 +384,7 @@ Sistem menyediakan fungsi-fungsi utama berikut:
   - HRD/Admin: Melihat semua presensi
 
 **FR-008: Status Presensi**
+
 - **ID**: FR-008
 - **Prioritas**: High
 - **Deskripsi**: Sistem harus menentukan status presensi otomatis
@@ -367,10 +398,11 @@ Sistem menyediakan fungsi-fungsi utama berikut:
 #### 3.1.3 Manajemen Data Karyawan
 
 **FR-009: Tambah Karyawan**
+
 - **ID**: FR-009
 - **Prioritas**: High
 - **Deskripsi**: Admin/HRD dapat menambah data karyawan baru
-- **Input**: 
+- **Input**:
   - NIK (unique)
   - Nama lengkap
   - Email (unique)
@@ -391,6 +423,7 @@ Sistem menyediakan fungsi-fungsi utama berikut:
 - **Output**: Pesan sukses dan redirect ke daftar karyawan
 
 **FR-010: Edit Karyawan**
+
 - **ID**: FR-010
 - **Prioritas**: High
 - **Deskripsi**: Admin/HRD dapat mengedit data karyawan
@@ -398,6 +431,7 @@ Sistem menyediakan fungsi-fungsi utama berikut:
 - **Output**: Pesan sukses dan update tampilan
 
 **FR-011: Hapus/Nonaktifkan Karyawan**
+
 - **ID**: FR-011
 - **Prioritas**: Medium
 - **Deskripsi**: Admin/HRD dapat menghapus atau menonaktifkan karyawan
@@ -409,6 +443,7 @@ Sistem menyediakan fungsi-fungsi utama berikut:
 - **Note**: Data tidak dihapus, hanya diubah statusnya
 
 **FR-012: Import Data Karyawan**
+
 - **ID**: FR-012
 - **Prioritas**: Medium
 - **Deskripsi**: Admin/HRD dapat import data karyawan dari file CSV/Excel
@@ -419,11 +454,12 @@ Sistem menyediakan fungsi-fungsi utama berikut:
   3. Sistem membaca dan memvalidasi data
   4. Sistem menyimpan data ke database
   5. Sistem membuat audit log
-- **Error Handling**: 
+- **Error Handling**:
   - Format file tidak valid → tampilkan error
   - Data duplikat → skip atau tampilkan warning
 
 **FR-013: Export Data Karyawan**
+
 - **ID**: FR-013
 - **Prioritas**: Medium
 - **Deskripsi**: Admin/HRD dapat export data karyawan ke file CSV/Excel
@@ -433,14 +469,15 @@ Sistem menyediakan fungsi-fungsi utama berikut:
   3. Sistem generate file CSV/Excel
   4. Sistem download file ke client
 
-#### 3.1.4 Pengajuan Izin/Cuti/Sakit
+#### 3.1.4 Pengajuan Timeoff
 
-**FR-014: Pengajuan Izin/Cuti/Sakit**
+**FR-014: Pengajuan Timeoff**
+
 - **ID**: FR-014
 - **Prioritas**: High
 - **Deskripsi**: Karyawan dapat mengajukan izin, cuti, atau sakit
 - **Input**:
-  - Jenis pengajuan (izin/cuti/sakit)
+  - Jenis pengajuan (Timeoff)
   - Tanggal mulai
   - Tanggal selesai
   - Alasan
@@ -459,6 +496,7 @@ Sistem menyediakan fungsi-fungsi utama berikut:
 - **Output**: Pesan sukses dan redirect ke daftar pengajuan
 
 **FR-015: Approval Workflow**
+
 - **ID**: FR-015
 - **Prioritas**: High
 - **Deskripsi**: Sistem harus menyediakan workflow approval untuk pengajuan
@@ -477,6 +515,7 @@ Sistem menyediakan fungsi-fungsi utama berikut:
 - **Output**: Update status dan notifikasi
 
 **FR-016: Lihat Pengajuan**
+
 - **ID**: FR-016
 - **Prioritas**: Medium
 - **Deskripsi**: User dapat melihat daftar pengajuan sesuai role
@@ -489,6 +528,7 @@ Sistem menyediakan fungsi-fungsi utama berikut:
 #### 3.1.5 Pengajuan Lembur
 
 **FR-017: Pengajuan Lembur**
+
 - **ID**: FR-017
 - **Prioritas**: High
 - **Deskripsi**: Karyawan dapat mengajukan lembur
@@ -509,15 +549,17 @@ Sistem menyediakan fungsi-fungsi utama berikut:
 - **Output**: Pesan sukses
 
 **FR-018: Approval Lembur**
+
 - **ID**: FR-018
 - **Prioritas**: High
 - **Deskripsi**: Atasan dan HRD dapat approve/reject pengajuan lembur
-- **Workflow**: Similar dengan approval izin/cuti/sakit
+- **Workflow**: Similar dengan approval Timeoff
 - **Proses**: Similar dengan FR-015
 
 #### 3.1.6 Notifikasi Sistem
 
 **FR-019: Notifikasi Real-time**
+
 - **ID**: FR-019
 - **Prioritas**: Medium
 - **Deskripsi**: Sistem harus menyediakan notifikasi untuk berbagai event
@@ -534,6 +576,7 @@ Sistem menyediakan fungsi-fungsi utama berikut:
 - **Output**: Badge notifikasi di UI
 
 **FR-020: Mark Notifikasi as Read**
+
 - **ID**: FR-020
 - **Prioritas**: Low
 - **Deskripsi**: User dapat menandai notifikasi sebagai sudah dibaca
@@ -542,6 +585,7 @@ Sistem menyediakan fungsi-fungsi utama berikut:
 #### 3.1.7 Audit Log
 
 **FR-021: Audit Log**
+
 - **ID**: FR-021
 - **Prioritas**: High
 - **Deskripsi**: Sistem harus mencatat semua aktivitas penting
@@ -563,6 +607,7 @@ Sistem menyediakan fungsi-fungsi utama berikut:
 #### 3.1.8 Dashboard
 
 **FR-022: Dashboard**
+
 - **ID**: FR-022
 - **Prioritas**: High
 - **Deskripsi**: Sistem harus menyediakan dashboard sesuai role
@@ -591,19 +636,22 @@ Sistem menyediakan fungsi-fungsi utama berikut:
 #### 3.2.1 Performance Requirements
 
 **NFR-001: Response Time**
+
 - **ID**: NFR-001
 - **Prioritas**: High
-- **Requirement**: 
+- **Requirement**:
   - Halaman harus load dalam waktu maksimal 3 detik
   - Query database harus selesai dalam waktu maksimal 1 detik
   - Presensi harus tersimpan dalam waktu maksimal 2 detik
 
 **NFR-002: Throughput**
+
 - **ID**: NFR-002
 - **Prioritas**: Medium
 - **Requirement**: Sistem harus dapat menangani minimal 100 concurrent users
 
 **NFR-003: Scalability**
+
 - **ID**: NFR-003
 - **Prioritas**: Medium
 - **Requirement**: Sistem harus dapat diskalakan untuk menambah jumlah pengguna
@@ -611,14 +659,16 @@ Sistem menyediakan fungsi-fungsi utama berikut:
 #### 3.2.2 Security Requirements
 
 **NFR-004: Password Security**
+
 - **ID**: NFR-004
 - **Prioritas**: High
-- **Requirement**: 
+- **Requirement**:
   - Password harus di-hash menggunakan Werkzeug (PBKDF2)
   - Password tidak boleh disimpan dalam plain text
   - Minimum panjang password: 6 karakter
 
 **NFR-005: Session Security**
+
 - **ID**: NFR-005
 - **Prioritas**: High
 - **Requirement**:
@@ -627,16 +677,18 @@ Sistem menyediakan fungsi-fungsi utama berikut:
   - Session harus dihapus saat logout
 
 **NFR-006: Data Encryption**
+
 - **ID**: NFR-006
 - **Prioritas**: Medium
-- **Requirement**: 
+- **Requirement**:
   - Data sensitif harus dienkripsi saat transit (HTTPS)
   - Password harus di-hash di database
 
 **NFR-007: Access Control**
+
 - **ID**: NFR-007
 - **Prioritas**: High
-- **Requirement**: 
+- **Requirement**:
   - Setiap request harus memvalidasi role pengguna
   - Pengguna tidak dapat mengakses fitur di luar role mereka
   - Audit log untuk semua akses
@@ -644,22 +696,25 @@ Sistem menyediakan fungsi-fungsi utama berikut:
 #### 3.2.3 Reliability Requirements
 
 **NFR-008: Availability**
+
 - **ID**: NFR-008
 - **Prioritas**: High
 - **Requirement**: Sistem harus tersedia 99% dari waktu operasional (8 jam kerja)
 
 **NFR-009: Error Handling**
+
 - **ID**: NFR-009
 - **Prioritas**: High
-- **Requirement**: 
+- **Requirement**:
   - Sistem harus menangani error dengan graceful
   - Error message harus informatif untuk user
   - Error tidak boleh mengekspos informasi sensitif
 
 **NFR-010: Data Backup**
+
 - **ID**: NFR-010
 - **Prioritas**: High
-- **Requirement**: 
+- **Requirement**:
   - Database harus di-backup secara berkala (harian)
   - Backup harus disimpan di lokasi terpisah
   - Proses restore harus dapat dilakukan dalam waktu maksimal 1 jam
@@ -667,34 +722,38 @@ Sistem menyediakan fungsi-fungsi utama berikut:
 #### 3.2.4 Usability Requirements
 
 **NFR-011: User Interface**
+
 - **ID**: NFR-011
 - **Prioritas**: High
-- **Requirement**: 
+- **Requirement**:
   - Interface harus user-friendly dan intuitif
   - Menggunakan Flowbite/Tailwind CSS untuk konsistensi
   - Responsive design untuk mobile dan desktop
 
 **NFR-012: Accessibility**
+
 - **ID**: NFR-012
 - **Prioritas**: Medium
-- **Requirement**: 
+- **Requirement**:
   - Interface harus dapat diakses melalui berbagai browser
   - Kontras warna harus cukup untuk readability
 
 #### 3.2.5 Maintainability Requirements
 
 **NFR-013: Code Quality**
+
 - **ID**: NFR-013
 - **Prioritas**: Medium
-- **Requirement**: 
+- **Requirement**:
   - Kode harus mengikuti best practices
   - Menggunakan arsitektur MVC
   - Kode harus terdokumentasi
 
 **NFR-014: Logging**
+
 - **ID**: NFR-014
 - **Prioritas**: Medium
-- **Requirement**: 
+- **Requirement**:
   - Sistem harus mencatat log untuk debugging
   - Log harus dapat diakses oleh admin
 
@@ -807,6 +866,7 @@ Absensi_PTYudistira_Pute/
 ### 5.2 Database Tables
 
 #### 5.2.1 Table: users
+
 - **Purpose**: Menyimpan data user untuk autentikasi
 - **Primary Key**: id
 - **Fields**:
@@ -823,6 +883,7 @@ Absensi_PTYudistira_Pute/
   - updated_at (DATETIME, Default: Current Timestamp)
 
 #### 5.2.2 Table: employees
+
 - **Purpose**: Menyimpan data karyawan
 - **Primary Key**: id
 - **Fields**:
@@ -840,6 +901,7 @@ Absensi_PTYudistira_Pute/
   - updated_at (DATETIME, Default: Current Timestamp)
 
 #### 5.2.3 Table: attendances
+
 - **Purpose**: Menyimpan data presensi
 - **Primary Key**: id
 - **Fields**:
@@ -864,7 +926,8 @@ Absensi_PTYudistira_Pute/
   - updated_at (DATETIME, Default: Current Timestamp)
 
 #### 5.2.4 Table: leave_requests
-- **Purpose**: Menyimpan pengajuan izin/cuti/sakit
+
+- **Purpose**: Menyimpan pengajuan Timeoff
 - **Primary Key**: id
 - **Fields**:
   - id (INT, PK, Auto Increment)
@@ -886,6 +949,7 @@ Absensi_PTYudistira_Pute/
   - updated_at (DATETIME, Default: Current Timestamp)
 
 #### 5.2.5 Table: overtimes
+
 - **Purpose**: Menyimpan pengajuan lembur
 - **Primary Key**: id
 - **Fields**:
@@ -908,6 +972,7 @@ Absensi_PTYudistira_Pute/
   - updated_at (DATETIME, Default: Current Timestamp)
 
 #### 5.2.6 Table: notifications
+
 - **Purpose**: Menyimpan notifikasi sistem
 - **Primary Key**: id
 - **Fields**:
@@ -920,6 +985,7 @@ Absensi_PTYudistira_Pute/
   - created_at (DATETIME, Default: Current Timestamp)
 
 #### 5.2.7 Table: audit_logs
+
 - **Purpose**: Menyimpan log aktivitas sistem
 - **Primary Key**: id
 - **Fields**:
@@ -956,43 +1022,50 @@ Absensi_PTYudistira_Pute/
 ### 6.2 Page Requirements
 
 #### 6.2.1 Login Page
+
 - Form login dengan username/email dan password
 - Tombol "Login"
 - Link "Lupa Password" (opsional)
 - Pesan error jika login gagal
 
 #### 6.2.2 Dashboard
+
 - Statistik cards sesuai role
 - Notifikasi terbaru
 - Quick actions
 - Menu navigasi sidebar
 
 #### 6.2.3 Presensi Page
+
 - Tombol "Check In" dan "Check Out"
 - Status presensi hari ini
 - Riwayat presensi (tabel)
 - Filter tanggal
 
 #### 6.2.4 Data Karyawan Page
+
 - Tabel daftar karyawan
 - Tombol "Tambah Karyawan"
 - Tombol "Edit" dan "Hapus" per row
 - Tombol "Import" dan "Export"
 - Search dan filter
 
-#### 6.2.5 Pengajuan Izin/Cuti/Sakit Page
+#### 6.2.5 Pengajuan Timeoff Page
+
 - Tabel daftar pengajuan
 - Tombol "Ajukan" (untuk karyawan)
 - Tombol "Approve/Reject" (untuk atasan/HRD)
 - Filter status dan jenis
 
 #### 6.2.6 Pengajuan Lembur Page
+
 - Tabel daftar pengajuan lembur
 - Tombol "Ajukan" (untuk karyawan)
 - Tombol "Approve/Reject" (untuk atasan/HRD)
 - Filter status
 
 #### 6.2.7 Audit Log Page
+
 - Tabel audit log
 - Filter tanggal, user, aktivitas
 - Pagination
@@ -1050,15 +1123,15 @@ Absensi_PTYudistira_Pute/
 
 ### 8.1 Glossary
 
-| Istilah | Definisi |
-|---------|----------|
-| **Check-in** | Proses presensi masuk kerja |
-| **Check-out** | Proses presensi pulang kerja |
-| **Geofencing** | Teknologi untuk membatasi area presensi |
-| **Geolocation** | Teknologi untuk menentukan lokasi geografis |
-| **RBAC** | Role-Based Access Control - kontrol akses berdasarkan peran |
-| **Session** | Status login pengguna yang aktif |
-| **Workflow** | Alur proses bisnis yang terstruktur |
+| Istilah         | Definisi                                                    |
+| --------------- | ----------------------------------------------------------- |
+| **Check-in**    | Proses presensi masuk kerja                                 |
+| **Check-out**   | Proses presensi pulang kerja                                |
+| **Geofencing**  | Teknologi untuk membatasi area presensi                     |
+| **Geolocation** | Teknologi untuk menentukan lokasi geografis                 |
+| **RBAC**        | Role-Based Access Control - kontrol akses berdasarkan peran |
+| **Session**     | Status login pengguna yang aktif                            |
+| **Workflow**    | Alur proses bisnis yang terstruktur                         |
 
 ### 8.2 Acronyms
 
@@ -1087,9 +1160,9 @@ Absensi_PTYudistira_Pute/
 
 ### 8.4 Revision History
 
-| Versi | Tanggal | Penulis | Deskripsi Perubahan |
-|-------|---------|---------|---------------------|
-| 1.0 | 2026 | Tim Pengembangan | Initial release |
+| Versi | Tanggal | Penulis          | Deskripsi Perubahan |
+| ----- | ------- | ---------------- | ------------------- |
+| 1.0   | 2026    | Tim Pengembangan | Initial release     |
 
 ---
 

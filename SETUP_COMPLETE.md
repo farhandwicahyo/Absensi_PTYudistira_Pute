@@ -14,10 +14,12 @@ Aplikasi Sistem Presensi Karyawan sudah berhasil di-setup dengan database SQL Se
 Setelah setup, gunakan kredensial berikut untuk login:
 
 ### Admin
+
 - **Username**: `admin`
 - **Password**: `admin123`
 
 ### HRD
+
 - **Username**: `hrd`
 - **Password**: `hrd123`
 
@@ -30,43 +32,50 @@ Buka browser dan kunjungi: **http://localhost:5000**
 ## 📋 Fitur yang Tersedia
 
 ### Untuk Semua Role:
+
 - ✅ Dashboard dengan statistik
 - ✅ Presensi (Check-in & Check-out)
-- ✅ Pengajuan Izin/Cuti/Sakit
+- ✅ Pengajuan Timeoff
 - ✅ Pengajuan Lembur
 - ✅ Notifikasi
 
 ### Untuk Admin:
+
 - ✅ Manajemen Data Karyawan (CRUD)
 - ✅ Import/Export Data Karyawan
 - ✅ Audit Log
 - ✅ Manajemen User
 
 ### Untuk HRD:
+
 - ✅ Manajemen Data Karyawan (CRUD)
 - ✅ Import/Export Data Karyawan
-- ✅ Approval Izin/Cuti/Sakit
+- ✅ Approval Timeoff
 - ✅ Approval Lembur
 
 ### Untuk Atasan:
-- ✅ Approval Izin/Cuti/Sakit
+
+- ✅ Approval Timeoff
 - ✅ Approval Lembur
 - ✅ Lihat Data Karyawan Bawahan
 
 ### Untuk Karyawan:
+
 - ✅ Presensi dengan Geolocation
-- ✅ Pengajuan Izin/Cuti/Sakit
+- ✅ Pengajuan Timeoff
 - ✅ Pengajuan Lembur
 - ✅ Lihat Riwayat Presensi
 
 ## 🚀 Menjalankan Aplikasi di Masa Depan
 
 ### Opsi 1: Menggunakan Script PowerShell (Recommended)
+
 ```powershell
 .\run_app.ps1
 ```
 
 ### Opsi 2: Manual
+
 ```powershell
 # Set environment variables
 $env:USE_WINDOWS_AUTH="true"
@@ -81,6 +90,7 @@ python app.py
 ## 🔧 Setup Ulang Database
 
 Jika perlu setup ulang database, jalankan:
+
 ```powershell
 .\setup_database.ps1
 ```
@@ -88,10 +98,11 @@ Jika perlu setup ulang database, jalankan:
 ## 📁 Struktur Database
 
 Database `AbsensiDB` berisi tabel-tabel berikut:
+
 - `users` - Data user untuk login
 - `employees` - Data karyawan
 - `attendances` - Data presensi
-- `leave_requests` - Data pengajuan izin/cuti/sakit
+- `leave_requests` - Data pengajuan Timeoff
 - `overtimes` - Data pengajuan lembur
 - `notifications` - Data notifikasi
 - `audit_logs` - Log aktivitas sistem
@@ -99,6 +110,7 @@ Database `AbsensiDB` berisi tabel-tabel berikut:
 ## ⚙️ Konfigurasi
 
 Konfigurasi aplikasi dapat diubah di file `config.py`:
+
 - **Jam Presensi**: `CHECK_IN_START`, `CHECK_IN_END`, `CHECK_OUT_START`, `CHECK_OUT_END`
 - **Lokasi Kantor**: `OFFICE_LATITUDE`, `OFFICE_LONGITUDE`, `GEO_RADIUS_METERS`
 - **Upload File**: `UPLOAD_FOLDER`, `MAX_UPLOAD_SIZE`, `ALLOWED_EXTENSIONS`
@@ -106,6 +118,7 @@ Konfigurasi aplikasi dapat diubah di file `config.py`:
 ## 🐛 Troubleshooting
 
 ### Error: Database tidak ditemukan
+
 ```powershell
 # Buat database manual
 sqlcmd -S localhost -Q "CREATE DATABASE AbsensiDB" -E
@@ -115,12 +128,15 @@ sqlcmd -S localhost -Q "CREATE DATABASE AbsensiDB" -E
 ```
 
 ### Error: Port 5000 sudah digunakan
+
 Ubah port di `app.py`:
+
 ```python
 app.run(debug=True, host='0.0.0.0', port=5001)  # Ganti port
 ```
 
 ### Error: Koneksi database gagal
+
 1. Pastikan SQL Server sudah berjalan
 2. Pastikan ODBC Driver 17 for SQL Server sudah terinstall
 3. Cek konfigurasi di `config.py` atau environment variables

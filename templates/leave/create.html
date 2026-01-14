@@ -1,61 +1,93 @@
-{% extends "base.html" %}
-
-{% block title %}Ajukan Izin/Cuti/Sakit - Sistem Presensi Karyawan{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Ajukan Timeoff - Sistem Presensi
+Karyawan{% endblock %} {% block content %}
 <div class="mb-6">
-    <h1 class="text-3xl font-bold text-gray-800">Ajukan Izin/Cuti/Sakit</h1>
-    <p class="text-gray-600 mt-2">Buat pengajuan izin, cuti, atau sakit</p>
+  <h1 class="text-3xl font-bold text-gray-800">Ajukan Timeoff</h1>
+  <p class="text-gray-600 mt-2">Buat pengajuan izin, cuti, atau sakit</p>
 </div>
 
 <div class="bg-white rounded-lg shadow p-6 max-w-2xl">
-    <form method="POST" enctype="multipart/form-data">
-        <div class="mb-4">
-            <label class="block text-gray-700 font-semibold mb-2">Jenis Pengajuan *</label>
-            <select name="leave_type" required
-                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-                <option value="">Pilih Jenis</option>
-                <option value="izin">Izin</option>
-                <option value="cuti">Cuti</option>
-                <option value="sakit">Sakit</option>
-            </select>
-        </div>
-        
-        <div class="grid grid-cols-2 gap-4 mb-4">
-            <div>
-                <label class="block text-gray-700 font-semibold mb-2">Tanggal Mulai *</label>
-                <input type="date" name="start_date" required
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-            </div>
-            
-            <div>
-                <label class="block text-gray-700 font-semibold mb-2">Tanggal Selesai *</label>
-                <input type="date" name="end_date" required
-                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-            </div>
-        </div>
-        
-        <div class="mb-4">
-            <label class="block text-gray-700 font-semibold mb-2">Alasan *</label>
-            <textarea name="reason" rows="4" required
-                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
-        </div>
-        
-        <div class="mb-4">
-            <label class="block text-gray-700 font-semibold mb-2">Bukti Pendukung (Opsional)</label>
-            <input type="file" name="attachment" accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
-                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
-            <p class="text-sm text-gray-500 mt-1">Format: PDF, PNG, JPG, DOC, DOCX (Max 5MB)</p>
-        </div>
-        
-        <div class="flex justify-end space-x-3">
-            <a href="{{ url_for('leave.index') }}" class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                Batal
-            </a>
-            <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                Kirim Pengajuan
-            </button>
-        </div>
-    </form>
+  <form method="POST" enctype="multipart/form-data">
+    <div class="mb-4">
+      <label class="block text-gray-700 font-semibold mb-2"
+        >Jenis Pengajuan *</label
+      >
+      <select
+        name="leave_type"
+        required
+        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+      >
+        <option value="">Pilih Jenis</option>
+        <option value="izin">Izin</option>
+        <option value="cuti">Cuti</option>
+        <option value="sakit">Sakit</option>
+      </select>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 mb-4">
+      <div>
+        <label class="block text-gray-700 font-semibold mb-2"
+          >Tanggal Mulai *</label
+        >
+        <input
+          type="date"
+          name="start_date"
+          required
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      <div>
+        <label class="block text-gray-700 font-semibold mb-2"
+          >Tanggal Selesai *</label
+        >
+        <input
+          type="date"
+          name="end_date"
+          required
+          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-gray-700 font-semibold mb-2">Alasan *</label>
+      <textarea
+        name="reason"
+        rows="4"
+        required
+        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+      ></textarea>
+    </div>
+
+    <div class="mb-4">
+      <label class="block text-gray-700 font-semibold mb-2"
+        >Bukti Pendukung (Opsional)</label
+      >
+      <input
+        type="file"
+        name="attachment"
+        accept=".pdf,.png,.jpg,.jpeg,.doc,.docx"
+        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+      />
+      <p class="text-sm text-gray-500 mt-1">
+        Format: PDF, PNG, JPG, DOC, DOCX (Max 5MB)
+      </p>
+    </div>
+
+    <div class="flex justify-end space-x-3">
+      <a
+        href="{{ url_for('leave.index') }}"
+        class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+      >
+        Batal
+      </a>
+      <button
+        type="submit"
+        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+      >
+        Kirim Pengajuan
+      </button>
+    </div>
+  </form>
 </div>
 {% endblock %}

@@ -153,11 +153,11 @@ Setelah menjalankan `init_db.py`, gunakan kredensial berikut:
 2. Tambah karyawan baru atau edit data yang ada
 3. Import/Export data menggunakan CSV
 
-### Pengajuan Izin/Cuti/Sakit
+### Pengajuan Timeoff
 
 1. Login sebagai karyawan
-2. Buka halaman Izin/Cuti/Sakit
-3. Klik "Ajukan Izin/Cuti/Sakit"
+2. Buka halaman Timeoff
+3. Klik "Ajukan Timeoff"
 4. Isi form dan kirim
 5. Atasan dan HRD akan menerima notifikasi untuk approval
 
@@ -183,6 +183,7 @@ Setelah menjalankan `init_db.py`, gunakan kredensial berikut:
 ### Error Koneksi Database
 
 Pastikan:
+
 - SQL Server sudah berjalan
 - ODBC Driver 17 for SQL Server sudah terinstall
 - Kredensial database benar

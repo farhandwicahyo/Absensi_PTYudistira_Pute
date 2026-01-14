@@ -1,70 +1,325 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block title %}Login - Sistem Presensi Karyawan{%
+endblock %} {% block extra_css %}
+<style>
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
 
-{% block title %}Login - Sistem Presensi Karyawan{% endblock %}
+  @keyframes gradient-shift {
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
 
-{% block content %}
-<div class="min-h-screen flex items-center justify-center bg-slate-50">
-    <div class="w-full max-w-md">
-        <div class="rounded-lg border bg-card text-card-foreground shadow-sm p-8">
-            <div class="flex flex-col space-y-6">
-                <div class="flex flex-col items-center space-y-2 text-center">
-                    <div class="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                        <i class="fas fa-clock text-2xl text-primary"></i>
-                    </div>
-                    <h1 class="text-2xl font-semibold tracking-tight">Sistem Presensi Karyawan</h1>
-                    <p class="text-sm text-muted-foreground">Silakan login untuk melanjutkan</p>
-                </div>
-                
-                <form method="POST" action="{{ url_for('auth.login') }}" class="space-y-4">
-                    <div class="space-y-2">
-                        <label for="username" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                            Username
-                        </label>
-                        <div class="relative">
-                            <i class="fas fa-user absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"></i>
-                            <input 
-                                type="text" 
-                                id="username" 
-                                name="username" 
-                                required
-                                class="flex h-10 w-full rounded-md border border-input bg-background pl-10 pr-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                placeholder="Masukkan username"
-                            >
-                        </div>
-                    </div>
-                    
-                    <div class="space-y-2">
-                        <label for="password" class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                            Password
-                        </label>
-                        <div class="relative">
-                            <i class="fas fa-lock absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"></i>
-                            <input 
-                                type="password" 
-                                id="password" 
-                                name="password" 
-                                required
-                                class="flex h-10 w-full rounded-md border border-input bg-background pl-10 pr-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                placeholder="Masukkan password"
-                            >
-                        </div>
-                    </div>
-                    
-                    <button 
-                        type="submit" 
-                        class="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 w-full"
-                    >
-                        <i class="fas fa-sign-in-alt mr-2"></i>Login
-                    </button>
-                    
-                    <div class="text-center">
-                        <a href="{{ url_for('auth.reset_password') }}" class="text-sm text-primary underline-offset-4 hover:underline">
-                            Lupa password?
-                        </a>
-                    </div>
-                </form>
-            </div>
+  @keyframes slide-up {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .login-container {
+    background: linear-gradient(
+      135deg,
+      #667eea 0%,
+      #764ba2 25%,
+      #f093fb 50%,
+      #4facfe 75%,
+      #00f2fe 100%
+    );
+    background-size: 400% 400%;
+    animation: gradient-shift 15s ease infinite;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .login-container::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.1) 1px,
+      transparent 1px
+    );
+    background-size: 50px 50px;
+    animation: float 20s ease-in-out infinite;
+  }
+
+  .login-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3),
+      0 0 0 1px rgba(255, 255, 255, 0.1);
+    animation: slide-up 0.6s ease-out;
+  }
+
+  .login-icon {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--primary)),
+      hsl(var(--primary) / 0.8)
+    );
+    box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .input-wrapper {
+    position: relative;
+  }
+
+  .input-wrapper input {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .input-wrapper input:focus {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(59, 130, 246, 0.15),
+      0 0 0 4px rgba(59, 130, 246, 0.1);
+  }
+
+  .input-wrapper input:focus + .input-icon,
+  .input-wrapper input:not(:placeholder-shown) + .input-icon {
+    color: hsl(var(--primary));
+    transform: scale(1.1);
+  }
+
+  .input-icon {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .login-button {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--primary)),
+      hsl(var(--primary) / 0.8)
+    );
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .login-button::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+
+  .login-button:hover::before {
+    width: 300px;
+    height: 300px;
+  }
+
+  .login-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.5);
+  }
+
+  .login-button:active {
+    transform: translateY(0);
+  }
+
+  .login-button span {
+    position: relative;
+    z-index: 1;
+  }
+
+  .forgot-link {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .forgot-link:hover {
+    transform: translateX(4px);
+  }
+
+  .floating-shapes {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .shape {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.1;
+    animation: float 15s ease-in-out infinite;
+  }
+
+  .shape-1 {
+    width: 200px;
+    height: 200px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    top: 10%;
+    left: 10%;
+    animation-delay: 0s;
+  }
+
+  .shape-2 {
+    width: 150px;
+    height: 150px;
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    top: 60%;
+    right: 10%;
+    animation-delay: 2s;
+  }
+
+  .shape-3 {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    bottom: 20%;
+    left: 20%;
+    animation-delay: 4s;
+  }
+</style>
+{% endblock %} {% block content %}
+<div
+  class="login-container min-h-screen flex items-center justify-center p-4 relative"
+>
+  <!-- Floating Background Shapes -->
+  <div class="floating-shapes">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+  </div>
+
+  <div class="w-full max-w-md relative z-10">
+    <div class="login-card rounded-3xl p-8 sm:p-10">
+      <div class="flex flex-col space-y-8">
+        <!-- Header Section -->
+        <div class="flex flex-col items-center space-y-4 text-center">
+          <div
+            class="login-icon flex h-20 w-20 items-center justify-center rounded-2xl"
+          >
+            <i class="fas fa-clock text-3xl text-white"></i>
+          </div>
+          <div class="space-y-2">
+            <h1
+              class="text-3xl font-bold tracking-tight bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent"
+            >
+              Sistem Presensi Karyawan
+            </h1>
+            <p class="text-sm text-slate-600 font-medium">
+              Silakan login untuk melanjutkan
+            </p>
+          </div>
         </div>
+
+        <!-- Login Form -->
+        <form
+          method="POST"
+          action="{{ url_for('auth.login') }}"
+          class="space-y-6"
+        >
+          <!-- Username Field -->
+          <div class="space-y-2">
+            <label
+              for="username"
+              class="text-sm font-semibold text-slate-700 block"
+            >
+              Username
+            </label>
+            <div class="input-wrapper relative">
+              <input
+                type="text"
+                id="username"
+                name="username"
+                required
+                autocomplete="username"
+                class="flex h-12 w-full rounded-xl border-2 border-slate-200 bg-white/80 backdrop-blur-sm pl-12 pr-4 py-3 text-sm font-medium text-slate-800 placeholder:text-slate-400 focus-visible:outline-none focus-visible:border-blue-500 focus-visible:bg-white transition-all duration-300"
+                placeholder="Masukkan username Anda"
+              />
+              <i
+                class="input-icon fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-base"
+              ></i>
+            </div>
+          </div>
+
+          <!-- Password Field -->
+          <div class="space-y-2">
+            <label
+              for="password"
+              class="text-sm font-semibold text-slate-700 block"
+            >
+              Password
+            </label>
+            <div class="input-wrapper relative">
+              <input
+                type="password"
+                id="password"
+                name="password"
+                required
+                autocomplete="current-password"
+                class="flex h-12 w-full rounded-xl border-2 border-slate-200 bg-white/80 backdrop-blur-sm pl-12 pr-4 py-3 text-sm font-medium text-slate-800 placeholder:text-slate-400 focus-visible:outline-none focus-visible:border-blue-500 focus-visible:bg-white transition-all duration-300"
+                placeholder="Masukkan password Anda"
+              />
+              <i
+                class="input-icon fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 text-base"
+              ></i>
+            </div>
+          </div>
+
+          <!-- Login Button -->
+          <button
+            type="submit"
+            class="login-button inline-flex items-center justify-center rounded-xl text-sm font-semibold text-white h-12 px-6 py-3 w-full"
+          >
+            <span class="flex items-center gap-2">
+              <i class="fas fa-sign-in-alt"></i>
+              <span>Masuk ke Sistem</span>
+            </span>
+          </button>
+
+          <!-- Forgot Password Link -->
+          <div class="text-center pt-2">
+            <a
+              href="{{ url_for('auth.reset_password') }}"
+              class="forgot-link inline-flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline"
+            >
+              <i class="fas fa-key text-xs"></i>
+              <span>Lupa password?</span>
+            </a>
+          </div>
+        </form>
+
+        <!-- Footer Decoration -->
+        <div class="pt-4 border-t border-slate-200">
+          <p class="text-xs text-center text-slate-500">
+            <i class="fas fa-shield-alt mr-1"></i>
+            Sistem aman dan terpercaya
+          </p>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}
