@@ -39,13 +39,27 @@ def index():
     
     role = session.get('role')
     
-    # Office location for map
+    # Office location for map - ambil dari database, fallback ke config
+    from models.office import Office
     from config import Config
-    office_location = {
-        'latitude': Config.OFFICE_LATITUDE,
-        'longitude': Config.OFFICE_LONGITUDE,
-        'radius': Config.GEO_RADIUS_METERS
-    }
+    
+    offices = Office.query.filter_by(is_active=True).all()
+    if offices:
+        # Ambil kantor pertama sebagai default untuk map (bisa dikembangkan untuk multiple marker)
+        office_location = {
+            'latitude': offices[0].latitude,
+            'longitude': offices[0].longitude,
+            'radius': offices[0].radius_meters,
+            'offices': [{'name': o.name, 'lat': o.latitude, 'lng': o.longitude, 'radius': o.radius_meters} for o in offices]
+        }
+    else:
+        # Fallback ke config
+        office_location = {
+            'latitude': Config.OFFICE_LATITUDE,
+            'longitude': Config.OFFICE_LONGITUDE,
+            'radius': Config.GEO_RADIUS_METERS,
+            'offices': []
+        }
     
     return render_template('attendance/index.html', 
                          today_attendance=today_attendance,
@@ -83,11 +97,12 @@ def check_in():
         return jsonify({'success': False, 'message': 'Lokasi tidak ditemukan'}), 400
     
     # Validate location
-    is_valid, distance = validate_location(latitude, longitude)
+    is_valid, distance, office_name = validate_location(latitude, longitude)
     if not is_valid:
+        office_info = f" ({office_name})" if office_name else ""
         return jsonify({
             'success': False, 
-            'message': f'Anda berada di luar radius kantor. Jarak: {distance:.0f}m'
+            'message': f'Anda berada di luar radius kantor{office_info}. Jarak: {distance:.0f}m'
         }), 400
     
     # Get device info
@@ -177,11 +192,12 @@ def check_out():
         return jsonify({'success': False, 'message': 'Lokasi tidak ditemukan'}), 400
     
     # Validate location
-    is_valid, distance = validate_location(latitude, longitude)
+    is_valid, distance, office_name = validate_location(latitude, longitude)
     if not is_valid:
+        office_info = f" ({office_name})" if office_name else ""
         return jsonify({
             'success': False, 
-            'message': f'Anda berada di luar radius kantor. Jarak: {distance:.0f}m'
+            'message': f'Anda berada di luar radius kantor{office_info}. Jarak: {distance:.0f}m'
         }), 400
     
     # Get device info

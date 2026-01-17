@@ -10,6 +10,8 @@ load_dotenv()
 from flask import Flask
 from config import Config
 from models import db
+# Import semua models untuk memastikan tabel dibuat
+from models.office import Office
 from controllers.auth_controller import auth_bp
 from controllers.attendance_controller import attendance_bp
 from controllers.employee_controller import employee_bp
@@ -18,6 +20,7 @@ from controllers.overtime_controller import overtime_bp
 from controllers.dashboard_controller import dashboard_bp
 from controllers.notification_controller import notification_bp
 from controllers.audit_controller import audit_bp
+from controllers.office_controller import office_bp
 
 def create_app():
     """Factory function untuk membuat Flask app"""
@@ -36,6 +39,7 @@ def create_app():
     app.register_blueprint(dashboard_bp, url_prefix='/')
     app.register_blueprint(notification_bp, url_prefix='/notification')
     app.register_blueprint(audit_bp, url_prefix='/audit')
+    app.register_blueprint(office_bp, url_prefix='/office')
     
     # Create tables
     with app.app_context():

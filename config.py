@@ -36,15 +36,17 @@ class Config:
     PERMANENT_SESSION_LIFETIME = timedelta(hours=8)
     
     # Presensi Settings
-    CHECK_IN_START = '07:00'  # Jam mulai check-in
-    CHECK_IN_END = '09:00'    # Jam akhir check-in
-    CHECK_OUT_START = '16:00' # Jam mulai check-out
-    CHECK_OUT_END = '18:00'   # Jam akhir check-out
+    # Dapat diatur melalui environment variables atau nilai default di bawah
+    CHECK_IN_START = os.environ.get('CHECK_IN_START', '07:00')  # Jam mulai check-in
+    CHECK_IN_END = os.environ.get('CHECK_IN_END', '09:00')    # Jam akhir check-in
+    CHECK_OUT_START = os.environ.get('CHECK_OUT_START', '16:00') # Jam mulai check-out
+    CHECK_OUT_END = os.environ.get('CHECK_OUT_END', '18:00')   # Jam akhir check-out
     
     # Geolocation Settings
-    OFFICE_LATITUDE = -6.2088  # Contoh koordinat Jakarta
-    OFFICE_LONGITUDE = 106.8456
-    GEO_RADIUS_METERS = 100  # Radius dalam meter
+    # Dapat diatur melalui environment variables atau nilai default di bawah
+    OFFICE_LATITUDE = float(os.environ.get('OFFICE_LATITUDE', -6.2088))  # Contoh koordinat Jakarta
+    OFFICE_LONGITUDE = float(os.environ.get('OFFICE_LONGITUDE', 106.8456))
+    GEO_RADIUS_METERS = int(os.environ.get('GEO_RADIUS_METERS', 100))  # Radius dalam meter
     
     # Upload Settings
     UPLOAD_FOLDER = 'uploads'

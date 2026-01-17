@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Lokasi Kantor - Sistem Presensi Karyawan{% endblock %}
+
+{% block content %}
+<div class="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="space-y-1">
+            <h1 class="text-3xl sm:text-4xl font-bold tracking-tight gradient-text">Lokasi Kantor</h1>
+            <p class="text-muted-foreground">Kelola lokasi kantor untuk presensi geolocation</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+            <a href="{{ url_for('office.create') }}" class="inline-flex items-center justify-center rounded-xl h-10 px-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all">
+                <i class="fas fa-plus mr-2"></i><span class="hidden sm:inline">Tambah Lokasi</span><span class="sm:hidden">+</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Info Box -->
+    <div class="rounded-2xl border border-blue-200 bg-blue-50/50 backdrop-blur-sm shadow-lg p-4 sm:p-6">
+        <div class="flex items-start gap-3">
+            <i class="fas fa-info-circle text-blue-600 text-xl mt-1"></i>
+            <div class="flex-1">
+                <h3 class="font-semibold text-blue-900 mb-1">Informasi Lokasi Kantor</h3>
+                <p class="text-sm text-blue-800">
+                    Sistem akan memvalidasi lokasi presensi berdasarkan koordinat dan radius yang Anda tentukan. 
+                    Karyawan hanya bisa check-in/check-out jika berada dalam radius salah satu kantor aktif.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table View -->
+    <div class="rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-sm shadow-xl overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full min-w-[900px] caption-bottom text-sm">
+                <thead>
+                    <tr class="border-b border-slate-200 bg-gradient-to-r from-slate-50 to-slate-100/50">
+                        <th class="h-14 px-6 text-left align-middle font-bold text-slate-700">Nama Kantor</th>
+                        <th class="h-14 px-6 text-left align-middle font-bold text-slate-700">Alamat</th>
+                        <th class="h-14 px-6 text-left align-middle font-bold text-slate-700">Koordinat</th>
+                        <th class="h-14 px-6 text-left align-middle font-bold text-slate-700">Radius</th>
+                        <th class="h-14 px-6 text-left align-middle font-bold text-slate-700">Status</th>
+                        <th class="h-14 px-6 text-left align-middle font-bold text-slate-700">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    {% if offices %}
+                        {% for office in offices %}
+                        <tr class="border-b border-slate-100 transition-all hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-transparent group">
+                            <td class="p-5 align-middle">
+                                <div class="font-semibold text-slate-800">{{ office.name }}</div>
+                                {% if office.description %}
+                                <div class="text-xs text-slate-500 mt-1">{{ office.description }}</div>
+                                {% endif %}
+                            </td>
+                            <td class="p-5 align-middle">
+                                <div class="text-sm text-slate-600">{{ office.address or '-' }}</div>
+                            </td>
+                            <td class="p-5 align-middle">
+                                <div class="text-xs font-mono text-slate-700">
+                                    <div>Lat: {{ "%.6f"|format(office.latitude) }}</div>
+                                    <div>Lng: {{ "%.6f"|format(office.longitude) }}</div>
+                                </div>
+                            </td>
+                            <td class="p-5 align-middle">
+                                <div class="text-sm font-semibold text-slate-700">{{ office.radius_meters }} m</div>
+                            </td>
+                            <td class="p-5 align-middle">
+                                <span class="inline-flex items-center rounded-full px-3 py-1.5 text-xs font-bold transition-all shadow-md
+                                    {% if office.is_active %}bg-gradient-to-r from-green-500 to-green-600 text-white
+                                    {% else %}bg-gradient-to-r from-red-500 to-red-600 text-white{% endif %}">
+                                    {% if office.is_active %}AKTIF{% else %}NONAKTIF{% endif %}
+                                </span>
+                            </td>
+                            <td class="p-5 align-middle">
+                                <div class="flex items-center gap-2">
+                                    <a href="{{ url_for('office.edit', office_id=office.id) }}" 
+                                       class="inline-flex items-center justify-center rounded-xl w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md hover:shadow-lg hover:scale-110 active:scale-95 transition-all">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    {% if office.is_active %}
+                                    <form method="POST" action="{{ url_for('office.delete', office_id=office.id) }}" 
+                                          onsubmit="return confirm('Apakah Anda yakin ingin menonaktifkan lokasi kantor ini?');" 
+                                          class="inline">
+                                        <button type="submit" 
+                                                class="inline-flex items-center justify-center rounded-xl w-10 h-10 bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md hover:shadow-lg hover:scale-110 active:scale-95 transition-all">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                    <form method="POST" action="{{ url_for('office.activate', office_id=office.id) }}" 
+                                          class="inline">
+                                        <button type="submit" 
+                                                class="inline-flex items-center justify-center rounded-xl w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md hover:shadow-lg hover:scale-110 active:scale-95 transition-all">
+                                            <i class="fas fa-check"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="6" class="p-12 text-center">
+                                <div class="flex flex-col items-center gap-3">
+                                    <i class="fas fa-building text-4xl text-slate-300"></i>
+                                    <div class="text-slate-500">
+                                        <p class="font-semibold mb-1">Belum ada lokasi kantor</p>
+                                        <p class="text-sm">Tambahkan lokasi kantor pertama Anda</p>
+                                    </div>
+                                    <a href="{{ url_for('office.create') }}" 
+                                       class="inline-flex items-center justify-center rounded-xl h-10 px-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all">
+                                        <i class="fas fa-plus mr-2"></i>Tambah Lokasi Kantor
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

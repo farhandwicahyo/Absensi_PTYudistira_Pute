@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+
+{% block title %}Tambah Lokasi Kantor - Sistem Presensi Karyawan{% endblock %}
+
+{% block content %}
+<div class="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="space-y-1">
+            <h1 class="text-3xl sm:text-4xl font-bold tracking-tight gradient-text">Tambah Lokasi Kantor</h1>
+            <p class="text-muted-foreground">Tambahkan lokasi kantor baru untuk presensi geolocation</p>
+        </div>
+        <a href="{{ url_for('office.index') }}" class="inline-flex items-center justify-center rounded-xl h-10 px-4 border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition-all">
+            <i class="fas fa-arrow-left mr-2"></i>Kembali
+        </a>
+    </div>
+
+    <!-- Form -->
+    <div class="rounded-2xl border border-slate-200 bg-white/90 backdrop-blur-sm shadow-xl p-6 sm:p-8 max-w-3xl">
+        <form method="POST" class="space-y-6">
+            <!-- Nama Kantor -->
+            <div class="space-y-2">
+                <label for="name" class="text-sm font-semibold text-slate-700">
+                    Nama Kantor <span class="text-red-500">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    required
+                    placeholder="Contoh: Kantor Pusat Jakarta"
+                    class="w-full h-10 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                >
+                <p class="text-xs text-slate-500">Nama yang mudah diingat untuk lokasi kantor ini</p>
+            </div>
+
+            <!-- Alamat -->
+            <div class="space-y-2">
+                <label for="address" class="text-sm font-semibold text-slate-700">Alamat</label>
+                <textarea 
+                    id="address" 
+                    name="address" 
+                    rows="3"
+                    placeholder="Contoh: Jl. Sudirman No. 123, Jakarta Pusat"
+                    class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                ></textarea>
+            </div>
+
+            <!-- Koordinat -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="space-y-2">
+                    <label for="latitude" class="text-sm font-semibold text-slate-700">
+                        Latitude <span class="text-red-500">*</span>
+                    </label>
+                    <input 
+                        type="number" 
+                        id="latitude" 
+                        name="latitude" 
+                        step="any"
+                        required
+                        placeholder="Contoh: -6.2088"
+                        class="w-full h-10 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                    >
+                    <p class="text-xs text-slate-500">Koordinat lintang (-90 sampai 90)</p>
+                </div>
+
+                <div class="space-y-2">
+                    <label for="longitude" class="text-sm font-semibold text-slate-700">
+                        Longitude <span class="text-red-500">*</span>
+                    </label>
+                    <input 
+                        type="number" 
+                        id="longitude" 
+                        name="longitude" 
+                        step="any"
+                        required
+                        placeholder="Contoh: 106.8456"
+                        class="w-full h-10 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                    >
+                    <p class="text-xs text-slate-500">Koordinat bujur (-180 sampai 180)</p>
+                </div>
+            </div>
+
+            <!-- Info Box untuk mendapatkan koordinat -->
+            <div class="rounded-lg border border-blue-200 bg-blue-50/50 p-4">
+                <div class="flex items-start gap-3">
+                    <i class="fas fa-info-circle text-blue-600 mt-0.5"></i>
+                    <div class="flex-1 text-sm text-blue-800">
+                        <p class="font-semibold mb-1">Cara mendapatkan koordinat:</p>
+                        <ol class="list-decimal list-inside space-y-1 ml-2">
+                            <li>Buka <a href="https://www.google.com/maps" target="_blank" class="underline font-semibold">Google Maps</a></li>
+                            <li>Cari alamat kantor Anda</li>
+                            <li>Klik kanan pada lokasi → Pilih "Koordinat"</li>
+                            <li>Salin koordinat ke form di atas</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Radius -->
+            <div class="space-y-2">
+                <label for="radius_meters" class="text-sm font-semibold text-slate-700">
+                    Radius (meter) <span class="text-red-500">*</span>
+                </label>
+                <input 
+                    type="number" 
+                    id="radius_meters" 
+                    name="radius_meters" 
+                    required
+                    min="1"
+                    value="100"
+                    placeholder="100"
+                    class="w-full h-10 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                >
+                <p class="text-xs text-slate-500">Rekomendasi: 100-200 meter untuk kantor menengah</p>
+            </div>
+
+            <!-- Deskripsi -->
+            <div class="space-y-2">
+                <label for="description" class="text-sm font-semibold text-slate-700">Deskripsi</label>
+                <textarea 
+                    id="description" 
+                    name="description" 
+                    rows="3"
+                    placeholder="Informasi tambahan tentang lokasi kantor ini..."
+                    class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                ></textarea>
+            </div>
+
+            <!-- Status Aktif -->
+            <div class="flex items-center gap-3">
+                <input 
+                    type="checkbox" 
+                    id="is_active" 
+                    name="is_active" 
+                    checked
+                    class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                >
+                <label for="is_active" class="text-sm font-semibold text-slate-700">
+                    Aktifkan lokasi kantor ini
+                </label>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="flex flex-col sm:flex-row gap-3 pt-4">
+                <button 
+                    type="submit" 
+                    class="flex-1 inline-flex items-center justify-center rounded-xl h-11 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all"
+                >
+                    <i class="fas fa-save mr-2"></i>Simpan Lokasi Kantor
+                </button>
+                <a href="{{ url_for('office.index') }}" 
+                   class="inline-flex items-center justify-center rounded-xl h-11 px-6 border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition-all">
+                    Batal
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

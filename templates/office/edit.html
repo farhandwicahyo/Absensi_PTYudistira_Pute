@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Lokasi Kantor - Sistem Presensi Karyawan{% endblock %}
+
+{% block content %}
+<div class="space-y-6 animate-in fade-in slide-in-from-bottom-4">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="space-y-1">
+            <h1 class="text-3xl sm:text-4xl font-bold tracking-tight gradient-text">Edit Lokasi Kantor</h1>
+            <p class="text-muted-foreground">Edit informasi lokasi kantor</p>
+        </div>
+        <a href="{{ url_for('office.index') }}" class="inline-flex items-center justify-center rounded-xl h-10 px-4 border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition-all">
+            <i class="fas fa-arrow-left mr-2"></i>Kembali
+        </a>
+    </div>
+
+    <!-- Form -->
+    <div class="rounded-2xl border border-slate-200 bg-white/90 backdrop-blur-sm shadow-xl p-6 sm:p-8 max-w-3xl">
+        <form method="POST" class="space-y-6">
+            <!-- Nama Kantor -->
+            <div class="space-y-2">
+                <label for="name" class="text-sm font-semibold text-slate-700">
+                    Nama Kantor <span class="text-red-500">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    required
+                    value="{{ office.name }}"
+                    placeholder="Contoh: Kantor Pusat Jakarta"
+                    class="w-full h-10 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                >
+            </div>
+
+            <!-- Alamat -->
+            <div class="space-y-2">
+                <label for="address" class="text-sm font-semibold text-slate-700">Alamat</label>
+                <textarea 
+                    id="address" 
+                    name="address" 
+                    rows="3"
+                    placeholder="Contoh: Jl. Sudirman No. 123, Jakarta Pusat"
+                    class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                >{{ office.address or '' }}</textarea>
+            </div>
+
+            <!-- Koordinat -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="space-y-2">
+                    <label for="latitude" class="text-sm font-semibold text-slate-700">
+                        Latitude <span class="text-red-500">*</span>
+                    </label>
+                    <input 
+                        type="number" 
+                        id="latitude" 
+                        name="latitude" 
+                        step="any"
+                        required
+                        value="{{ office.latitude }}"
+                        placeholder="Contoh: -6.2088"
+                        class="w-full h-10 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                    >
+                </div>
+
+                <div class="space-y-2">
+                    <label for="longitude" class="text-sm font-semibold text-slate-700">
+                        Longitude <span class="text-red-500">*</span>
+                    </label>
+                    <input 
+                        type="number" 
+                        id="longitude" 
+                        name="longitude" 
+                        step="any"
+                        required
+                        value="{{ office.longitude }}"
+                        placeholder="Contoh: 106.8456"
+                        class="w-full h-10 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                    >
+                </div>
+            </div>
+
+            <!-- Radius -->
+            <div class="space-y-2">
+                <label for="radius_meters" class="text-sm font-semibold text-slate-700">
+                    Radius (meter) <span class="text-red-500">*</span>
+                </label>
+                <input 
+                    type="number" 
+                    id="radius_meters" 
+                    name="radius_meters" 
+                    required
+                    min="1"
+                    value="{{ office.radius_meters }}"
+                    placeholder="100"
+                    class="w-full h-10 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                >
+            </div>
+
+            <!-- Deskripsi -->
+            <div class="space-y-2">
+                <label for="description" class="text-sm font-semibold text-slate-700">Deskripsi</label>
+                <textarea 
+                    id="description" 
+                    name="description" 
+                    rows="3"
+                    placeholder="Informasi tambahan tentang lokasi kantor ini..."
+                    class="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                >{{ office.description or '' }}</textarea>
+            </div>
+
+            <!-- Status Aktif -->
+            <div class="flex items-center gap-3">
+                <input 
+                    type="checkbox" 
+                    id="is_active" 
+                    name="is_active" 
+                    {% if office.is_active %}checked{% endif %}
+                    class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-2 focus:ring-blue-500"
+                >
+                <label for="is_active" class="text-sm font-semibold text-slate-700">
+                    Aktifkan lokasi kantor ini
+                </label>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="flex flex-col sm:flex-row gap-3 pt-4">
+                <button 
+                    type="submit" 
+                    class="flex-1 inline-flex items-center justify-center rounded-xl h-11 bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all"
+                >
+                    <i class="fas fa-save mr-2"></i>Simpan Perubahan
+                </button>
+                <a href="{{ url_for('office.index') }}" 
+                   class="inline-flex items-center justify-center rounded-xl h-11 px-6 border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition-all">
+                    Batal
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
