@@ -114,12 +114,6 @@ endblock %} {% block content %}
               >
                 <i class="fas fa-clock mr-1.5"></i>Menunggu Atasan
               </span>
-              {% elif leave.status == 'menunggu_hrd' %}
-              <span
-                class="inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-semibold transition-all shadow-md bg-gradient-to-r from-blue-500 to-blue-600 text-white"
-              >
-                <i class="fas fa-clock mr-1.5"></i>Menunggu HRD
-              </span>
               {% elif leave.status == 'disetujui' %}
               <span
                 class="inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-semibold transition-all shadow-md bg-gradient-to-r from-green-500 to-green-600 text-white"
@@ -141,59 +135,9 @@ endblock %} {% block content %}
               {% endif %}
             </td>
             <td class="p-5 align-middle">
-              {% if role == 'atasan' and leave.status in ['menunggu',
-              'menunggu_hrd'] and leave.supervisor_id ==
+              {% if role == 'atasan' and leave.status == 'menunggu'
+              and leave.supervisor_id ==
               session.get('employee_id') %}
-              <div class="flex items-center gap-2">
-                <form
-                  method="POST"
-                  action="{{ url_for('leave.approve', leave_id=leave.id) }}"
-                  class="inline"
-                >
-                  <button
-                    type="submit"
-                    class="inline-flex items-center justify-center rounded-xl w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md hover:shadow-lg hover:scale-110 active:scale-95 transition-all"
-                    onclick="return confirm('Setujui pengajuan ini?')"
-                    title="Setujui"
-                  >
-                    <i class="fas fa-check"></i>
-                  </button>
-                </form>
-                <button
-                  onclick="showRejectModal({{ leave.id }})"
-                  class="inline-flex items-center justify-center rounded-xl w-10 h-10 bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md hover:shadow-lg hover:scale-110 active:scale-95 transition-all"
-                  title="Tolak"
-                >
-                  <i class="fas fa-times"></i>
-                </button>
-              </div>
-              {% elif role in ['admin', 'hrd'] and leave.status ==
-              'menunggu_hrd' %}
-              <div class="flex items-center gap-2">
-                <form
-                  method="POST"
-                  action="{{ url_for('leave.approve', leave_id=leave.id) }}"
-                  class="inline"
-                >
-                  <button
-                    type="submit"
-                    class="inline-flex items-center justify-center rounded-xl w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 text-white shadow-md hover:shadow-lg hover:scale-110 active:scale-95 transition-all"
-                    onclick="return confirm('Setujui pengajuan ini?')"
-                    title="Setujui"
-                  >
-                    <i class="fas fa-check"></i>
-                  </button>
-                </form>
-                <button
-                  onclick="showRejectModal({{ leave.id }})"
-                  class="inline-flex items-center justify-center rounded-xl w-10 h-10 bg-gradient-to-r from-red-500 to-red-600 text-white shadow-md hover:shadow-lg hover:scale-110 active:scale-95 transition-all"
-                  title="Tolak"
-                >
-                  <i class="fas fa-times"></i>
-                </button>
-              </div>
-              {% elif role in ['admin', 'hrd'] and leave.status == 'menunggu'
-              and not leave.supervisor_id %}
               <div class="flex items-center gap-2">
                 <form
                   method="POST"
@@ -287,20 +231,12 @@ endblock %} {% block content %}
         >
           <i class="fas fa-clock mr-1.5"></i>Menunggu Atasan
         </span>
-        {% elif leave.status == 'menunggu_hrd' %}
-        <span
-          class="inline-flex items-center rounded-lg px-3 py-1.5 text-xs font-semibold transition-all shadow-md bg-gradient-to-r from-blue-500 to-blue-600 text-white"
-        >
-          <i class="fas fa-clock mr-1.5"></i>Menunggu HRD
-        </span>
         {% endif %}
       </div>
 
       <!-- Actions -->
-      {% if role == 'atasan' and leave.status in ['menunggu', 'menunggu_hrd']
-      and leave.supervisor_id == session.get('employee_id') or role in ['admin',
-      'hrd'] and (leave.status == 'menunggu_hrd' or (leave.status == 'menunggu'
-      and not leave.supervisor_id)) %}
+      {% if role == 'atasan' and leave.status == 'menunggu'
+      and leave.supervisor_id == session.get('employee_id') %}
       <div class="flex items-center gap-3 pt-3 border-t border-slate-200">
         <form
           method="POST"

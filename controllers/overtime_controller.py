@@ -6,7 +6,7 @@ from models import db
 from models.overtime import Overtime
 from models.employee import Employee
 from models.user import User
-from utils.decorators import login_required, supervisor_required
+from utils.decorators import login_required, role_required
 from utils.audit_logger import AuditLogger
 from utils.notification_helper import NotificationHelper
 from datetime import datetime, timedelta
@@ -101,34 +101,19 @@ def create():
 
 @overtime_bp.route('/<int:overtime_id>/approve', methods=['POST'])
 @login_required
-@supervisor_required
+@role_required('atasan')
 def approve(overtime_id):
-    """Approve pengajuan lembur"""
+    """Approve pengajuan lembur (hanya atasan)"""
     overtime = Overtime.query.get_or_404(overtime_id)
-    role = session.get('role')
     user_id = session.get('user_id')
     
-    # Check if can approve
-    if role == 'atasan':
-        if overtime.supervisor_id != session.get('employee_id'):
-            flash('Anda tidak berhak menyetujui pengajuan ini', 'error')
-            return redirect(url_for('overtime.index'))
-        
-        overtime.supervisor_approval = True
-        overtime.supervisor_approval_date = datetime.utcnow()
-        
-        if not overtime.hrd_approval:
-            pass
-        else:
-            overtime.status = 'disetujui'
+    if overtime.supervisor_id != session.get('employee_id'):
+        flash('Anda tidak berhak menyetujui pengajuan ini', 'error')
+        return redirect(url_for('overtime.index'))
     
-    elif role in ['admin', 'hrd']:
-        overtime.hrd_approval = True
-        overtime.hrd_approval_date = datetime.utcnow()
-        overtime.hrd_id = user_id
-        
-        if overtime.supervisor_approval:
-            overtime.status = 'disetujui'
+    overtime.supervisor_approval = True
+    overtime.supervisor_approval_date = datetime.utcnow()
+    overtime.status = 'disetujui'
     
     db.session.commit()
     
@@ -154,22 +139,20 @@ def approve(overtime_id):
 
 @overtime_bp.route('/<int:overtime_id>/reject', methods=['POST'])
 @login_required
-@supervisor_required
+@role_required('atasan')
 def reject(overtime_id):
-    """Reject pengajuan lembur"""
+    """Reject pengajuan lembur (hanya atasan)"""
     overtime = Overtime.query.get_or_404(overtime_id)
-    role = session.get('role')
     user_id = session.get('user_id')
     rejection_reason = request.form.get('rejection_reason', '')
     
+    if overtime.supervisor_id != session.get('employee_id'):
+        flash('Anda tidak berhak menolak pengajuan ini', 'error')
+        return redirect(url_for('overtime.index'))
+    
     overtime.status = 'ditolak'
     overtime.rejection_reason = rejection_reason
-    
-    if role == 'atasan':
-        overtime.supervisor_approval = False
-    elif role in ['admin', 'hrd']:
-        overtime.hrd_approval = False
-        overtime.hrd_id = user_id
+    overtime.supervisor_approval = False
     
     db.session.commit()
     

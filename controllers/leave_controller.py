@@ -6,7 +6,7 @@ from models import db
 from models.leave_request import LeaveRequest
 from models.employee import Employee
 from models.user import User
-from utils.decorators import login_required, supervisor_required
+from utils.decorators import login_required, role_required
 from utils.audit_logger import AuditLogger
 from utils.notification_helper import NotificationHelper
 from werkzeug.utils import secure_filename
@@ -38,26 +38,14 @@ def index():
     
     # Add approval status info for each request
     for leave in leave_requests:
-        # Determine current approval stage
         if leave.status == 'ditolak':
             leave.approval_stage = 'ditolak'
         elif leave.status == 'disetujui':
             leave.approval_stage = 'disetujui'
-        elif leave.leave_type == 'cuti':
-            if not leave.supervisor_approval:
-                leave.approval_stage = 'menunggu_atasan'
-            elif not leave.hrd_approval:
-                leave.approval_stage = 'menunggu_hrd'
-            else:
-                leave.approval_stage = 'disetujui'
+        elif not leave.supervisor_approval:
+            leave.approval_stage = 'menunggu_atasan'
         else:
-            # Izin dan sakit
-            if leave.supervisor_id and not leave.supervisor_approval:
-                leave.approval_stage = 'menunggu_atasan'
-            elif leave.supervisor_approval:
-                leave.approval_stage = 'disetujui'
-            else:
-                leave.approval_stage = 'menunggu_approval'
+            leave.approval_stage = 'disetujui'
     
     return render_template('leave/index.html', leave_requests=leave_requests, role=role)
 
@@ -141,52 +129,19 @@ def create():
 
 @leave_bp.route('/<int:leave_id>/approve', methods=['POST'])
 @login_required
-@supervisor_required
+@role_required('atasan')
 def approve(leave_id):
-    """Approve pengajuan"""
+    """Approve pengajuan (hanya atasan)"""
     leave_request = LeaveRequest.query.get_or_404(leave_id)
-    role = session.get('role')
     user_id = session.get('user_id')
     
-    # Check if can approve
-    if role == 'atasan':
-        if leave_request.supervisor_id != session.get('employee_id'):
-            flash('Anda tidak berhak menyetujui pengajuan ini', 'error')
-            return redirect(url_for('leave.index'))
-        
-        # Atasan approve
-        leave_request.supervisor_approval = True
-        leave_request.supervisor_approval_date = datetime.utcnow()
-        
-        # Untuk cuti, perlu approval HRD juga setelah atasan approve
-        # Untuk izin/sakit, bisa langsung disetujui jika atasan sudah approve
-        if leave_request.leave_type == 'cuti':
-            # Cuti perlu approval HRD setelah atasan
-            leave_request.status = 'menunggu_hrd'  # Status baru: menunggu HRD
-        else:
-            # Izin dan sakit bisa langsung disetujui setelah atasan approve
-            if leave_request.hrd_approval:
-                leave_request.status = 'disetujui'
-            else:
-                # Jika tidak perlu HRD approval, langsung disetujui
-                leave_request.status = 'disetujui'
+    if leave_request.supervisor_id != session.get('employee_id'):
+        flash('Anda tidak berhak menyetujui pengajuan ini', 'error')
+        return redirect(url_for('leave.index'))
     
-    elif role in ['admin', 'hrd']:
-        # HRD/Admin bisa approve jika:
-        # 1. Atasan sudah approve (untuk cuti wajib)
-        # 2. Atau langsung approve jika tidak ada atasan
-        if leave_request.leave_type == 'cuti' and leave_request.supervisor_id:
-            # Untuk cuti, harus menunggu approval atasan dulu
-            if not leave_request.supervisor_approval:
-                flash('Pengajuan cuti harus disetujui oleh atasan terlebih dahulu', 'warning')
-                return redirect(url_for('leave.index'))
-        
-        leave_request.hrd_approval = True
-        leave_request.hrd_approval_date = datetime.utcnow()
-        leave_request.hrd_id = user_id
-        
-        # Set status menjadi disetujui
-        leave_request.status = 'disetujui'
+    leave_request.supervisor_approval = True
+    leave_request.supervisor_approval_date = datetime.utcnow()
+    leave_request.status = 'disetujui'
     
     db.session.commit()
     
@@ -203,57 +158,33 @@ def approve(leave_id):
     # Create notification for employee
     employee_user = User.query.filter_by(employee_id=leave_request.employee_id).first()
     if employee_user:
-        # Jika sudah final approval (disetujui), kirim notifikasi ke karyawan
-        if leave_request.status == 'disetujui':
-            NotificationHelper.notify_leave_approval(
-                employee_user.id,
-                leave_request.id,
-                True,
-                leave_request.leave_type,
-                role
-            )
-        # Jika atasan approve tapi masih menunggu HRD (untuk cuti), kirim notifikasi intermediate
-        elif leave_request.status == 'menunggu_hrd' and role == 'atasan':
-            NotificationHelper.create_notification(
-                employee_user.id,
-                f'Pengajuan {leave_request.leave_type.capitalize()} Disetujui Atasan',
-                f'Pengajuan {leave_request.leave_type} Anda telah disetujui atasan dan sedang menunggu approval HRD.',
-                'leave',
-                leave_request.id
-            )
-    
-    # Jika atasan approve cuti, notifikasi ke HRD
-    if role == 'atasan' and leave_request.leave_type == 'cuti' and leave_request.status == 'menunggu_hrd':
-        # Notifikasi ke HRD bahwa ada pengajuan cuti yang sudah di-approve atasan
-        hrd_users = User.query.filter(User.role.in_(['hrd', 'admin'])).all()
-        for hrd_user in hrd_users:
-            NotificationHelper.notify_hrd_pending_leave(
-                hrd_user.id,
-                leave_request.id,
-                leave_request.employee.full_name if leave_request.employee else 'Karyawan'
-            )
+        NotificationHelper.notify_leave_approval(
+            employee_user.id,
+            leave_request.id,
+            True,
+            leave_request.leave_type,
+            'atasan'
+        )
     
     flash('Pengajuan berhasil disetujui', 'success')
     return redirect(url_for('leave.index'))
 
 @leave_bp.route('/<int:leave_id>/reject', methods=['POST'])
 @login_required
-@supervisor_required
+@role_required('atasan')
 def reject(leave_id):
-    """Reject pengajuan"""
+    """Reject pengajuan (hanya atasan)"""
     leave_request = LeaveRequest.query.get_or_404(leave_id)
-    role = session.get('role')
     user_id = session.get('user_id')
     rejection_reason = request.form.get('rejection_reason', '')
     
+    if leave_request.supervisor_id != session.get('employee_id'):
+        flash('Anda tidak berhak menolak pengajuan ini', 'error')
+        return redirect(url_for('leave.index'))
+    
     leave_request.status = 'ditolak'
     leave_request.rejection_reason = rejection_reason
-    
-    if role == 'atasan':
-        leave_request.supervisor_approval = False
-    elif role in ['admin', 'hrd']:
-        leave_request.hrd_approval = False
-        leave_request.hrd_id = user_id
+    leave_request.supervisor_approval = False
     
     db.session.commit()
     
