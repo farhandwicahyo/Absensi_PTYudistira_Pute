@@ -9,6 +9,7 @@ from models.overtime import Overtime
 from models.notification import Notification
 from models.employee import Employee
 from utils.decorators import login_required
+from utils.timezone import today_wib
 from datetime import datetime, date, timedelta, time
 
 dashboard_bp = Blueprint('dashboard', __name__)
@@ -26,7 +27,7 @@ def index():
     
     if role == 'karyawan':
         # Stats for employee
-        today = date.today()
+        today = today_wib()
         today_attendance = Attendance.query.filter_by(
             employee_id=employee_id,
             attendance_date=today
@@ -68,7 +69,7 @@ def index():
         # Stats for admin/HRD
         stats['total_employees'] = Employee.query.filter_by(status='aktif').count()
         stats['today_attendances'] = Attendance.query.filter_by(
-            attendance_date=date.today()
+            attendance_date=today_wib()
         ).count()
         stats['pending_leaves'] = LeaveRequest.query.filter_by(
             status='menunggu'

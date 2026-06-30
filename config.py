@@ -34,6 +34,10 @@ class Config:
     
     # Session
     PERMANENT_SESSION_LIFETIME = timedelta(hours=8)
+
+    # Timezone (WIB / UTC+7)
+    TIMEZONE = 'Asia/Jakarta'
+    TIMEZONE_OFFSET_HOURS = 7
     
     # Presensi Settings
     # Dapat diatur melalui environment variables atau nilai default di bawah

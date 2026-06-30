@@ -10,8 +10,9 @@ from utils.audit_logger import AuditLogger
 from utils.geolocation import validate_location
 from utils.device_info import get_device_info
 from utils.notification_helper import NotificationHelper
-from datetime import datetime, date, time
+from datetime import datetime
 from config import Config
+from utils.timezone import now_wib, today_wib
 
 attendance_bp = Blueprint('attendance', __name__)
 
@@ -25,8 +26,8 @@ def index():
         flash('Data karyawan tidak ditemukan', 'error')
         return redirect(url_for('dashboard.index'))
     
-    # Get today's attendance
-    today = date.today()
+    # Get today's attendance (WIB)
+    today = today_wib()
     today_attendance = Attendance.query.filter_by(
         employee_id=employee_id,
         attendance_date=today
@@ -66,7 +67,7 @@ def index():
                          attendances=attendances,
                          role=role,
                          office_location=office_location,
-                         current_date=date.today())
+                         current_date=today_wib())
 
 @attendance_bp.route('/check-in', methods=['POST'])
 @login_required
@@ -78,8 +79,8 @@ def check_in():
     if not employee_id:
         return jsonify({'success': False, 'message': 'Data karyawan tidak ditemukan'}), 400
     
-    # Check if already checked in today
-    today = date.today()
+    # Check if already checked in today (WIB)
+    today = today_wib()
     existing = Attendance.query.filter_by(
         employee_id=employee_id,
         attendance_date=today
@@ -108,8 +109,8 @@ def check_in():
     # Get device info
     device_info = get_device_info()
     
-    # Create or update attendance
-    now = datetime.utcnow()
+    # Create or update attendance (WIB)
+    now = now_wib()
     check_in_time = now.time()
     
     # Determine status (terlambat or hadir)
@@ -170,8 +171,8 @@ def check_out():
     if not employee_id:
         return jsonify({'success': False, 'message': 'Data karyawan tidak ditemukan'}), 400
     
-    # Check if checked in today
-    today = date.today()
+    # Check if checked in today (WIB)
+    today = today_wib()
     attendance = Attendance.query.filter_by(
         employee_id=employee_id,
         attendance_date=today
@@ -203,8 +204,8 @@ def check_out():
     # Get device info
     device_info = get_device_info()
     
-    # Update attendance
-    now = datetime.utcnow()
+    # Update attendance (WIB)
+    now = now_wib()
     check_out_time = now.time()
     
     # Check if pulang cepat
@@ -274,8 +275,8 @@ def manual_request():
     except ValueError:
         return jsonify({'success': False, 'message': 'Format tanggal tidak valid'}), 400
     
-    # Validate date (cannot be in the future)
-    today = date.today()
+    # Validate date (cannot be in the future, WIB)
+    today = today_wib()
     if attendance_date > today:
         return jsonify({'success': False, 'message': 'Tidak bisa mengajukan untuk tanggal di masa depan'}), 400
     
@@ -291,10 +292,7 @@ def manual_request():
     # Get device info
     device_info = get_device_info()
     
-    # Create or update attendance record
-    now = datetime.utcnow()
-    
-    # Set default check-in and check-out time for manual request
+    # Set default check-in and check-out time for manual request (WIB)
     # Check-in: 08:00, Check-out: 17:00 pada tanggal yang dipilih
     check_in_default = datetime.combine(attendance_date, datetime.strptime(Config.CHECK_IN_START, '%H:%M').time())
     check_out_default = datetime.combine(attendance_date, datetime.strptime(Config.CHECK_OUT_START, '%H:%M').time())

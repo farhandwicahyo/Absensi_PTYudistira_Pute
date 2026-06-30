@@ -1,8 +1,9 @@
 """
 Model Attendance untuk presensi
 """
-from datetime import datetime, date
+from datetime import datetime
 from models import db
+from utils.timezone import today_wib
 
 class Attendance(db.Model):
     """Model untuk presensi karyawan"""
@@ -10,7 +11,7 @@ class Attendance(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     employee_id = db.Column(db.Integer, db.ForeignKey('employees.id'), nullable=False)
-    attendance_date = db.Column(db.Date, nullable=False, default=date.today)
+    attendance_date = db.Column(db.Date, nullable=False, default=today_wib)
     check_in_time = db.Column(db.DateTime, nullable=True)
     check_out_time = db.Column(db.DateTime, nullable=True)
     check_in_latitude = db.Column(db.Float, nullable=True)
